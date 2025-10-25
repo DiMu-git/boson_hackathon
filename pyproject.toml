@@ -49,6 +49,7 @@ dependencies = [
     "streamlit>=1.50.0",
     "av>=16.0.1",
     "streamlit-webrtc>=0.63.11",
+    "python-multipart>=0.0.20",
 ]
 
 [project.optional-dependencies]

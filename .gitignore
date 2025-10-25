@@ -218,3 +218,5 @@ Thumbs.db
 .uv/
 
 data/
+
+app/voice_embeddings/
