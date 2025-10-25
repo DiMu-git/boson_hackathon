@@ -50,7 +50,7 @@ def main():
             audio_data = generator.generate_simple_voice(text, voice=voice)
             
             # Save audio
-            output_path = f"comparison_{voice}.wav"
+            output_path = f"generated_voices/comparison_{voice}.wav"
             generator.save_audio(audio_data, output_path)
             generated_voices[voice] = output_path
             print(f"✅ Saved to {output_path}")
@@ -90,7 +90,7 @@ def main():
             temperature=1.0
         )
         
-        ensemble_output_path = "ensemble_voice.wav"
+        ensemble_output_path = "generated_voices/ensemble_voice.wav"
         generator.save_audio(ensemble_audio, ensemble_output_path)
         print(f"✅ Ensemble voice saved to {ensemble_output_path}")
         

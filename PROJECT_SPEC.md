@@ -18,69 +18,87 @@ boson_hackathon/
 ├── pyproject.toml                    # uv package management configuration
 ├── .env.example                      # Environment variables template
 ├── .gitignore                        # Git ignore patterns
-├── config/                           # Configuration files
-│   ├── boson_api.yaml               # Boson API configuration
-│   ├── speaker_systems.yaml         # Speaker recognition system configs
-│   └── experiment_configs.yaml      # Experiment parameters
-├── playground/                       # API testing and experimentation
+├── .python-version                   # Python version specification
+├── uv.lock                          # uv lock file
+├── requirements.txt                  # Legacy requirements (for compatibility)
+├── experiment_config.json           # Experiment configuration
+│
+├── app/                             # Demo/Application part
 │   ├── __init__.py
-│   ├── boson_api_tester.py          # Test Boson API functionality
+│   ├── app.py                       # Main demo application
 │   ├── voice_generator.py           # Voice generation utilities
 │   ├── audio_utils.py               # Audio processing helpers
+│   ├── boson_api_tester.py          # Test Boson API functionality
 │   └── examples/                     # Example scripts and demos
 │       ├── basic_voice_generation.py
 │       ├── voice_cloning_demo.py
-│       └── multi_voice_comparison.py
+│       ├── multi_voice_comparison.py
+│       └── generated_voices/        # Demo output files
+│           ├── output_belinda.wav
+│           ├── output_en_man.wav
+│           └── output_en_woman.wav
+│
+├── experiments/                     # Experiment implementations
+│   ├── __init__.py
+│   ├── automated_prompt_experiment/  # Automated Prompt Experimentation
+│   │   ├── __init__.py
+│   │   ├── batch_prompt_eval.py     # Batch prompt evaluation
+│   │   ├── higgs_eval.py            # Higgs model evaluation
+│   │   ├── run_experiments.py       # Main experiment runner
+│   │   ├── higgs_prompt_eval.csv    # Experiment results
+│   │   └── prompt_sweep/            # Prompt sweep results
+│   │       └── results.csv
+│   ├── results/                     # Experiment results
+│   │   ├── logs/                    # Experiment logs
+│   │   ├── metrics/                 # Performance metrics
+│   │   └── visualizations/          # Result plots and charts
+│
+├── datasets/                        # Dataset management
+│   ├── generated_voices/            # AI-generated voices
+│   ├── ground_truth/                # Ground truth labels
+│   ├── reference_audio/             # Reference audio samples
+│   └── target_voices/               # Target speaker voices
+│
+├── hackathon-msac-public/          # Public reference audio
+│   ├── api_doc.md
+│   ├── cloning_example.py
+│   ├── README.md
+│   └── ref-audio/                   # Reference audio files
+│       ├── belinda.wav
+│       ├── broom_salesman.wav
+│       ├── chadwick.wav
+│       ├── en_man.wav
+│       ├── en_woman.wav
+│       ├── hogwarts_wand_seller_v2.wav
+│       ├── mabel.wav
+│       ├── vex.wav
+│       └── zh_man_sichuan.wav
+│
 ├── src/                             # Core hacking functionality
 │   ├── __init__.py
 │   ├── core/                        # Core attack framework
 │   │   ├── __init__.py
 │   │   ├── voice_impersonator.py    # Main voice impersonation engine
 │   │   ├── attack_strategies.py     # Different attack methodologies
-│   │   └── voice_analyzer.py        # Voice characteristic analysis
+│   │   ├── voice_analyzer.py        # Voice characteristic analysis
+│   │   ├── common_voice_baseline.py # Common Voice baseline
+│   │   ├── embedding_scorer.py      # Embedding scoring utilities
+│   │   ├── experiment_plan_zh.md    # Chinese experiment plan
+│   │   └── instruction/             # Instruction files
+│   │       └── cursor_task_en.md    # Cursor task instructions
 │   ├── targets/                     # Speaker recognition system adapters
-│   │   ├── __init__.py
-│   │   ├── speechbrain_adapter.py   # SpeechBrain integration
-│   │   ├── pyannote_adapter.py      # pyannote.audio integration
-│   │   ├── alize_adapter.py         # ALIZÉ integration
-│   │   ├── openspeaker_adapter.py   # OpenSpeaker integration
-│   │   └── threed_speaker_adapter.py # 3D-Speaker-Toolkit integration
 │   └── utils/                       # Utility functions
-│       ├── __init__.py
-│       ├── audio_processing.py      # Audio preprocessing
-│       ├── metrics.py               # Evaluation metrics
-│       └── visualization.py        # Results visualization
-├── experiments/                  # Experiment implementations
-│   ├── __init__.py
-│   ├── baseline_experiments.py      # Baseline attack experiments
-│   ├── advanced_experiments.py      # Advanced attack strategies
-│   ├── comparative_analysis.py      # Cross-system comparison
-│   ├── robustness_testing.py        # Robustness evaluation
-│   └── results/                     # Experiment results
-│       ├── logs/                    # Experiment logs
-│       ├── metrics/                 # Performance metrics
-│       └── visualizations/          # Result plots and charts
-├── datasets/                        # Dataset management
-│   ├── __init__.py
-│   ├── target_voices/               # Target speaker voices
-│   ├── generated_voices/            # AI-generated voices
-│   ├── reference_audio/             # Reference audio samples
-│   └── ground_truth/                # Ground truth labels
-├── notebooks/                       # Jupyter notebooks for analysis
-│   ├── voice_analysis.ipynb         # Voice characteristic analysis
-│   ├── attack_visualization.ipynb   # Attack success visualization
-│   └── comparative_study.ipynb      # Comparative analysis
-└── tests/                           # Unit and integration tests
-    ├── __init__.py
-    ├── test_voice_generation.py
-    ├── test_attack_framework.py
-    └── test_speaker_systems.py
+│
+├── tools/                           # Utility tools and scripts
+│   └── generate_prompt_texts.py    # Prompt text generation
+│
+└── config/                          # Configuration files
 ```
 
 ## 🔧 Core Components
 
-### 1. Playground Module (`playground/`)
-**Purpose:** API testing, voice generation experimentation, and rapid prototyping
+### 1. App Module (`app/`)
+**Purpose:** Demo application, voice generation experimentation, and rapid prototyping
 
 **Key Features:**
 - Boson API integration testing
@@ -88,11 +106,14 @@ boson_hackathon/
 - Audio quality assessment
 - Voice cloning demonstrations
 - Multi-voice comparison tools
+- Interactive demo application
 
 **Components:**
+- `app.py`: Main demo application with Streamlit interface
 - `boson_api_tester.py`: Test all Boson API endpoints
 - `voice_generator.py`: Generate voices with various parameters
 - `audio_utils.py`: Audio processing and analysis utilities
+- `examples/`: Example scripts and demo outputs
 
 ### 2. Core Hacking Framework (`src/core/`)
 **Purpose:** Main attack engine and voice impersonation logic
@@ -128,10 +149,18 @@ boson_hackathon/
 **Purpose:** Systematic evaluation and benchmarking
 
 **Experiment Types:**
+- **Automated Prompt Experimentation**: Automated testing of different prompts with Higgs Audio v2
 - **Baseline Experiments**: Basic voice impersonation attacks
 - **Advanced Experiments**: Sophisticated attack strategies
 - **Comparative Analysis**: Cross-system vulnerability assessment
 - **Robustness Testing**: Attack resistance evaluation
+
+**Automated Prompt Experiment Components:**
+- `batch_prompt_eval.py`: Batch evaluation of prompts
+- `higgs_eval.py`: Higgs model evaluation utilities
+- `run_experiments.py`: Main experiment runner
+- `higgs_prompt_eval.csv`: Experiment results
+- `prompt_sweep/`: Prompt sweep analysis results
 
 ## 🎯 Attack Strategies
 

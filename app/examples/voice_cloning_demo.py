@@ -55,7 +55,7 @@ def main():
         )
         
         # Save cloned voice
-        output_path = "cloned_voice.wav"
+        output_path = "generated_voices/cloned_voice.wav"
         generator.save_audio(cloned_audio, output_path)
         print(f"✅ Cloned voice saved to {output_path}")
         
@@ -67,7 +67,7 @@ def main():
             temperature=0.7
         )
         
-        original_output_path = "original_voice.wav"
+        original_output_path = "generated_voices/original_voice.wav"
         generator.save_audio(original_audio, original_output_path)
         print(f"✅ Original voice saved to {original_output_path}")
         

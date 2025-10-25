@@ -9,6 +9,9 @@ from pathlib import Path
 import openai
 from .attack_strategies import AttackStrategy
 from .voice_analyzer import VoiceAnalyzer
+import dotenv
+
+dotenv.load_dotenv()
 
 
 class VoiceImpersonator:
@@ -136,6 +139,7 @@ class VoiceImpersonator:
         audio_b64 = response.choices[0].message.audio.data
         return base64.b64decode(audio_b64)
     
+    #TODO: Implement characteristic manipulation attack
     def _characteristic_manipulation_attack(
         self,
         target_voice_path: str,
@@ -163,6 +167,7 @@ class VoiceImpersonator:
         # For now, use direct cloning as a baseline
         return self._direct_cloning_attack(target_voice_path, text, **kwargs)
     
+    #TODO: Implement adversarial generation attack
     def _adversarial_generation_attack(
         self,
         target_voice_path: str,

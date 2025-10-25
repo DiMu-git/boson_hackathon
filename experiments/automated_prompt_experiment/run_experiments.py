@@ -10,7 +10,7 @@ from typing import Dict, List, Any
 
 import openai
 
-from scripts.higgs_eval import synthesize_audio
+from experiments.automated_prompt_experiment.higgs_eval import synthesize_audio
 from src.core.embedding_scorer import SpeakerEmbedder
 from tqdm import tqdm
 

@@ -9,8 +9,8 @@ import numpy as np
 import av
 from pathlib import Path
 from streamlit_webrtc import webrtc_streamer, WebRtcMode
-from playground.voice_generator import VoiceGenerator
-from playground.audio_utils import AudioUtils
+from app.voice_generator import VoiceGenerator
+from app.audio_utils import AudioUtils
 
 # Set page config
 st.set_page_config(
@@ -147,7 +147,7 @@ with tab2:
             # Save button
             if st.button("Save Recording") and st.session_state.audio_buffer is not None:
                 # Create recordings directory if it doesn't exist
-                recordings_dir = Path("playground/recordings")
+                recordings_dir = Path("app/recordings")
                 recordings_dir.mkdir(exist_ok=True)
                 
                 # Generate filename with timestamp

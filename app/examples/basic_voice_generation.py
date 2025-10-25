@@ -47,7 +47,7 @@ def main():
             audio_data = generator.generate_simple_voice(text, voice=voice)
             
             # Save audio
-            output_path = f"output_{voice}.wav"
+            output_path = f"generated_voices/output_{voice}.wav"
             generator.save_audio(audio_data, output_path)
             print(f"✅ Saved to {output_path}")
             
