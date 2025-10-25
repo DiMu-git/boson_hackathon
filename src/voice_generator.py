@@ -11,6 +11,7 @@ import wave
 from typing import Optional, List, Dict, Any
 from pathlib import Path
 import openai
+import time
 from .voice_analyzer import VoiceAnalyzer
 import dotenv
 
@@ -150,6 +151,8 @@ class VoiceGenerator:
         target_voice_path: str,
         text: str,
         strategy: str = "direct_cloning",
+        reference_transcript: str = "",
+        system_prompt: str = "DEFAULT",
         **kwargs
     ) -> bytes:
         """
@@ -165,7 +168,13 @@ class VoiceGenerator:
             Generated audio data as bytes
         """
         if strategy == "direct_cloning":
-            return self._direct_cloning_attack(target_voice_path, text, **kwargs)
+            return self._direct_cloning_attack(
+                target_voice_path=target_voice_path,
+                text=text,
+                reference_transcript=reference_transcript,
+                system_prompt=system_prompt,
+                **kwargs,
+            )
         elif strategy == "characteristic_manipulation":
             return self._characteristic_manipulation_attack(target_voice_path, text, **kwargs)
         elif strategy == "adversarial_generation":
@@ -177,9 +186,12 @@ class VoiceGenerator:
         self,
         target_voice_path: str,
         text: str,
+        reference_transcript: str,
+        system_prompt: str = "DEFAULT",
         temperature: float = 1.0,
         top_p: float = 0.95,
         top_k: int = 50
+        
     ) -> bytes:
         """
         Direct voice cloning attack using reference audio.
@@ -198,34 +210,55 @@ class VoiceGenerator:
         with open(target_voice_path, "rb") as f:
             reference_audio_b64 = base64.b64encode(f.read()).decode("utf-8")
         
-        # Use default reference transcript
-        reference_transcript = "This is a reference audio sample for voice cloning."
-        
-        # Generate voice using chat completions with reference audio
-        response = self.client.chat.completions.create(
-            model="higgs-audio-generation-Hackathon",
-            messages=[
-                {"role": "user", "content": reference_transcript},
-                {
-                    "role": "assistant",
-                    "content": [{
-                        "type": "input_audio",
-                        "input_audio": {
-                            "data": reference_audio_b64,
-                            "format": "wav"
-                        }
-                    }],
-                },
-                {"role": "user", "content": text},
-            ],
-            modalities=["text", "audio"],
-            max_completion_tokens=4096,
-            temperature=temperature,
-            top_p=top_p,
-            stream=False,
-            stop=["<|eot_id|>", "<|end_of_text|>", "<|audio_eos|>"],
-            extra_body={"top_k": top_k},
-        )
+        # Resolve system prompt
+        if system_prompt == "DEFAULT":
+            system = (
+                "You are an AI assistant designed to convert text into speech.\n"
+                "If the user's message includes a [SPEAKER*] tag, do not read out the tag and generate speech for the following text, using the specified voice.\n"
+                "If no speaker tag is present, select a suitable voice on your own.\n"
+            )
+        else:
+            system = system_prompt
+
+        # Generate voice using chat completions with reference audio (with retries on transient errors)
+        last_err = None
+        for attempt in range(5):
+            try:
+                print(f"[VoiceGenerator] API call attempt {attempt+1}/5")
+                response = self.client.chat.completions.create(
+                    model="higgs-audio-generation-Hackathon",
+                    messages=[
+                        {"role": "system", "content": system},
+                        {"role": "user", "content": reference_transcript},
+                        {
+                            "role": "assistant",
+                            "content": [{
+                                "type": "input_audio",
+                                "input_audio": {
+                                    "data": reference_audio_b64,
+                                    "format": "wav"
+                                }
+                            }],
+                        },
+                        {"role": "user", "content": text},
+                    ],
+                    modalities=["text", "audio"],
+                    max_completion_tokens=2048,
+                    temperature=temperature,
+                    top_p=top_p,
+                    stream=False,
+                    stop=["<|eot_id|>", "<|end_of_text|>", "<|audio_eos|>"],
+                    extra_body={"top_k": top_k},
+                )
+                print("[VoiceGenerator] API call succeeded")
+                break
+            except Exception as e:
+                last_err = e
+                # exponential backoff on 5xx/gateway timeouts
+                print(f"[VoiceGenerator] API call failed: {e}. Backing off...")
+                time.sleep(2 ** attempt)
+        else:
+            raise last_err
         
         # Extract and decode audio data
         audio_b64 = response.choices[0].message.audio.data
@@ -289,6 +322,9 @@ class VoiceGenerator:
             output_path: Output file path
             sample_rate: Audio sample rate
         """
+        # Ensure parent directory exists
+        Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+        print(f"[VoiceGenerator] Saving audio -> {output_path}")
         with wave.open(output_path, 'wb') as wav_file:
             wav_file.setnchannels(1)  # Mono
             wav_file.setsampwidth(2)  # 16-bit

@@ -79,3 +79,13 @@ class SpeakerEmbedder:
         return float(np.dot(a, b) / denom)
 
 
+def ecapa_cosine(path_a: str | Path, path_b: str | Path, embedder: SpeakerEmbedder) -> float:
+    """
+    Convenience helper: compute ECAPA-TDNN cosine similarity between two audio files
+    using the provided SpeakerEmbedder (with caching).
+    """
+    ea = embedder.embed_file(str(path_a))
+    eb = embedder.embed_file(str(path_b))
+    return SpeakerEmbedder.cosine_similarity(ea, eb)
+
+
