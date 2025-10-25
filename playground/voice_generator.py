@@ -7,7 +7,9 @@ import base64
 from typing import Optional, List, Dict, Any
 import openai
 from .audio_utils import AudioUtils
+import dotenv
 
+dotenv.load_dotenv()
 
 class VoiceGenerator:
     """
@@ -28,7 +30,7 @@ class VoiceGenerator:
         if not self.api_key:
             raise ValueError("Boson API key is required. Set BOSON_API_KEY environment variable.")
         
-        self.client = openai.Client(
+        self.client = openai.OpenAI(
             api_key=self.api_key,
             base_url=self.base_url
         )
