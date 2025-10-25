@@ -10,7 +10,7 @@ import av
 from pathlib import Path
 from streamlit_webrtc import webrtc_streamer, WebRtcMode
 from src.voice_generator import VoiceGenerator
-from app.audio_utils import AudioUtils
+from audio_utils import AudioUtils
 
 # Set page config
 st.set_page_config(
