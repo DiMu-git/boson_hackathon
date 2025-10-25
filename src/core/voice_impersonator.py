@@ -100,6 +100,11 @@ class VoiceImpersonator:
         
         # Get reference transcript (simplified - in practice, you'd use ASR)
         reference_transcript = "This is a reference audio sample for voice cloning."
+        BOSON_API_KEY = os.getenv("BOSON_API_KEY")
+        client = openai.Client(
+            api_key=BOSON_API_KEY,
+            base_url="https://hackathon.boson.ai/v1"
+        )
         
         # Generate voice using chat completions with reference audio
         response = self.client.chat.completions.create(

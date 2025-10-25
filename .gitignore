@@ -216,3 +216,5 @@ Thumbs.db
 
 # uv specific
 .uv/
+
+data/
