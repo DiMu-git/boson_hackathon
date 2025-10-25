@@ -218,3 +218,8 @@ Thumbs.db
 .uv/
 
 data/
+
+embeddings/
+features/
+*.png
+auto/
