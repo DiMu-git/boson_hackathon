@@ -1,10 +1,45 @@
+# Voice Lock Application - Unified Requirements
+# Core FastAPI and web framework
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+python-multipart>=0.0.6
+
+# Streamlit frontend
 streamlit>=1.28.0
 streamlit-webrtc>=0.47.1
+
+# Audio processing and ML
 torch>=2.0.0
-torchaudio>=2.0.0
+torchaudio>=2.0.0,<2.2.0
 librosa>=0.10.0
 soundfile>=0.12.0
-numpy>=1.24.0
+numpy>=1.24.0,<2.0.0
 scipy>=1.10.0
+
+# Speaker recognition
+speechbrain>=0.5.0,<0.6.0
+
+# API and external services
 openai>=1.0.0
 python-dotenv>=1.0.0
+requests>=2.31.0
+
+# Data processing and visualization
+pandas>=2.0.0
+matplotlib>=3.7.0
+seaborn>=0.12.0
+
+# Utilities
+pyyaml>=6.0
+tqdm>=4.65.0
+datasets>=2.14.0
+
+# Security and validation
+pydantic>=2.0.0
+python-jose[cryptography]>=3.3.0
+passlib[bcrypt]>=1.7.4
+
+# Development and testing
+pytest>=7.0.0
+pytest-asyncio>=0.21.0
+httpx>=0.24.0

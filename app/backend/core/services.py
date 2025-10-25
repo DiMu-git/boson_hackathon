@@ -32,10 +32,30 @@ def initialize_services():
     # Initialize security manager
     _services["security_manager"] = SecurityManager(_services["db"])
     
-    # Initialize voice analysis services
-    _services["voice_analyzer"] = VoiceAnalyzer()
-    _services["embedder"] = SpeakerEmbedder(cache_dir=Path("voice_embeddings"))
-    _services["voice_generator"] = VoiceGenerator()
+    # Initialize voice analysis services with error handling
+    try:
+        _services["voice_analyzer"] = VoiceAnalyzer()
+    except ImportError as e:
+        if "numpy" in str(e).lower():
+            raise ImportError("NumPy is not available. Please install it with: pip install numpy>=1.24.0")
+        else:
+            raise e
+    
+    try:
+        _services["embedder"] = SpeakerEmbedder(cache_dir=Path("voice_embeddings"))
+    except ImportError as e:
+        if "numpy" in str(e).lower():
+            raise ImportError("NumPy is not available. Please install it with: pip install numpy>=1.24.0")
+        else:
+            raise e
+    
+    try:
+        _services["voice_generator"] = VoiceGenerator()
+    except ImportError as e:
+        if "numpy" in str(e).lower():
+            raise ImportError("NumPy is not available. Please install it with: pip install numpy>=1.24.0")
+        else:
+            raise e
 
 
 def get_services() -> Dict[str, Any]:

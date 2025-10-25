@@ -26,7 +26,9 @@ router = APIRouter()
 @router.post("/enroll", response_model=Dict[str, Any])
 async def enroll_voice(
     user_id: str,
-    request: VoiceEnrollmentRequest,
+    voice_name: Optional[str] = None,
+    security_level: str = "medium",
+    max_attempts: int = 3,
     audio_file: UploadFile = File(...),
     current_user: Optional[str] = Depends(get_current_user)
 ):
@@ -67,10 +69,10 @@ async def enroll_voice(
             from ..models.schemas import VoiceProfile
             profile = VoiceProfile(
                 user_id=user_id,
-                voice_name=request.voice_name,
+                voice_name=voice_name,
                 enrollment_date=datetime.now(),
-                security_level=request.security_level,
-                max_attempts=request.max_attempts,
+                security_level=security_level,
+                max_attempts=max_attempts,
                 is_active=True,
                 voice_characteristics=voice_characteristics,
                 embedding_data=embedding.tolist(),
@@ -92,7 +94,7 @@ async def enroll_voice(
                 event_type="enrollment",
                 severity="info",
                 description="Voice profile enrolled successfully",
-                metadata={"security_level": request.security_level}
+                metadata={"security_level": security_level}
             )
             
             return {
@@ -100,7 +102,7 @@ async def enroll_voice(
                 "message": f"Voice profile for user {user_id} enrolled successfully",
                 "profile_id": user_id,
                 "enrollment_date": profile.enrollment_date.isoformat(),
-                "security_level": request.security_level,
+                "security_level": security_level,
                 "voice_characteristics": {
                     "duration": voice_characteristics.get("duration", 0),
                     "pitch_range": voice_characteristics.get("pitch", {}).get("f0_range", 0),
@@ -122,7 +124,7 @@ async def enroll_voice(
 @router.post("/verify", response_model=VerificationResult)
 async def verify_voice(
     user_id: str,
-    request: VoiceVerificationRequest,
+    confidence_threshold: Optional[float] = None,
     audio_file: UploadFile = File(...),
     current_user: Optional[str] = Depends(get_current_user)
 ):
@@ -194,7 +196,7 @@ async def verify_voice(
                 "medium": 0.75,
                 "high": 0.85
             }
-            threshold = request.confidence_threshold or thresholds.get(profile.security_level, 0.75)
+            threshold = confidence_threshold or thresholds.get(profile.security_level, 0.75)
             
             # Calculate overall confidence
             overall_confidence = (embedding_similarity * 0.7 + 
@@ -255,7 +257,8 @@ async def verify_voice(
 
 @router.post("/analyze", response_model=Dict[str, Any])
 async def analyze_voice(
-    request: VoiceAnalysisRequest,
+    analysis_type: str = "full",
+    include_attack_detection: bool = True,
     audio_file: UploadFile = File(...),
     current_user: Optional[str] = Depends(get_current_user)
 ):
@@ -296,7 +299,7 @@ async def analyze_voice(
                 }
             }
             
-            if request.analysis_type in ["full", "security"]:
+            if analysis_type in ["full", "security"]:
                 # Generate embedding
                 embedding = embedder.embed_file(temp_file_path)
                 result["embedding_analysis"] = {
@@ -310,7 +313,7 @@ async def analyze_voice(
                     }
                 }
             
-            if request.include_attack_detection:
+            if include_attack_detection:
                 # Create a dummy profile for attack detection
                 from ..models.schemas import VoiceProfile
                 dummy_profile = VoiceProfile(

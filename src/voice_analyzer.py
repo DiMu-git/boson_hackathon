@@ -110,7 +110,7 @@ class VoiceAnalyzer:
             "std_spectral_centroid": float(np.std(spectral_centroids))
         }
     
-    def _extract_mfcc(self, y: np.ndarray, sr: int) -> np.ndarray:
+    def _extract_mfcc(self, y: np.ndarray, sr: int) -> list:
         """
         Extract MFCC features.
         
@@ -119,10 +119,10 @@ class VoiceAnalyzer:
             sr: Sample rate
             
         Returns:
-            MFCC features
+            MFCC features as a list
         """
         mfccs = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=13)
-        return np.mean(mfccs, axis=1)
+        return np.mean(mfccs, axis=1).tolist()
     
     def _extract_spectral_centroid(self, y: np.ndarray, sr: int) -> Dict[str, float]:
         """
@@ -244,8 +244,8 @@ class VoiceAnalyzer:
         similarities["spectral_similarity"] = max(0.0, sc_sim)
         
         # MFCC cosine similarity
-        mfcc1 = char1["mfcc"]
-        mfcc2 = char2["mfcc"]
+        mfcc1 = np.array(char1["mfcc"])
+        mfcc2 = np.array(char2["mfcc"])
         mfcc_sim = np.dot(mfcc1, mfcc2) / (np.linalg.norm(mfcc1) * np.linalg.norm(mfcc2))
         similarities["mfcc_similarity"] = float(mfcc_sim)
         
