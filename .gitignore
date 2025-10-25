@@ -218,6 +218,9 @@ Thumbs.db
 
 data/
 
+app/voice_embeddings/
+
+
 embeddings/
 features/
 *.png

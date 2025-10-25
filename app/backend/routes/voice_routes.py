@@ -192,7 +192,7 @@ async def verify_voice(
             
             # Determine confidence threshold based on security level
             thresholds = {
-                "low": 0.6,
+                "low": 0.5,
                 "medium": 0.75,
                 "high": 0.85
             }
