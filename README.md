@@ -66,15 +66,30 @@ The Voice Impersonation Attack Framework (VIAF) is a comprehensive system design
 
 ```
 boson_hackathon/
-├── playground/           # API testing and experimentation
-├── src/                  # Core framework
-│   ├── core/            # Voice impersonation engine
-│   ├── targets/         # Speaker recognition adapters
-│   └── utils/           # Utility functions
-├── experiments/         # Systematic evaluation
-├── datasets/           # Voice samples and ground truth
-├── notebooks/          # Analysis and visualization
-└── tests/              # Unit and integration tests
+├── app/                          # Demo application and examples
+│   ├── app.py                   # Streamlit demo app
+│   ├── voice_generator.py       # Voice generation utilities
+│   ├── audio_utils.py           # Audio processing helpers
+│   └── examples/                # Example scripts and demos
+├── src/                         # Core framework
+│   ├── voice_generator.py       # Unified voice generation engine
+│   ├── voice_analyzer.py        # Voice characteristic analysis
+│   ├── embedding_scorer.py      # Speaker recognition scoring
+│   ├── attack_strategies.py     # Attack methodologies
+│   └── common_voice_baseline.py # Baseline evaluation
+├── experiments/                  # Systematic evaluation
+│   └── automated_prompt_experiment/  # Automated prompt experimentation
+│       ├── run_experiments.py   # Main experiment runner
+│       ├── batch_prompt_eval.py # Batch evaluation
+│       ├── higgs_eval.py        # Higgs model evaluation
+│       ├── generate_prompt_texts.py # Prompt generation
+│       ├── prompts/             # Input prompt files
+│       ├── outputs/             # Generated audio outputs
+│       ├── results/             # Experiment results
+│       └── cache/               # Cached data
+├── datasets/                    # Voice samples and ground truth
+├── hackathon-msac-public/       # Public reference audio
+└── config/                      # Configuration files
 ```
 
 ## 🎮 Usage
@@ -82,13 +97,13 @@ boson_hackathon/
 ### Basic Voice Generation
 
 ```python
-from playground.voice_generator import VoiceGenerator
+from src.voice_generator import VoiceGenerator
 
 # Initialize the generator
 generator = VoiceGenerator()
 
 # Generate a voice with specific characteristics
-audio = generator.generate_voice(
+audio = generator.generate_simple_voice(
     text="Hello, this is a test of the voice generation system.",
     voice="belinda",
     temperature=0.7
@@ -101,19 +116,19 @@ generator.save_audio(audio, "output.wav")
 ### Voice Impersonation Attack
 
 ```python
-from src.core.voice_impersonator import VoiceImpersonator
+from src.voice_generator import VoiceGenerator
 from src.targets.speechbrain_adapter import SpeechBrainAdapter
 
 # Initialize components
-impersonator = VoiceImpersonator()
+generator = VoiceGenerator()
 target_system = SpeechBrainAdapter()
 
 # Load target voice
 target_voice = "path/to/target_voice.wav"
 
 # Generate impersonated voice
-attack_voice = impersonator.generate_impersonation(
-    target_voice=target_voice,
+attack_voice = generator.generate_impersonation(
+    target_voice_path=target_voice,
     text="I am the target speaker",
     strategy="direct_cloning"
 )
@@ -125,20 +140,20 @@ print(f"Similarity score: {similarity_score}")
 
 ### Running Experiments
 
-```python
-from experiments.baseline_experiments import BaselineExperiment
+```bash
+# Navigate to experiment directory
+cd experiments/automated_prompt_experiment/
 
-# Run baseline attack experiment
-experiment = BaselineExperiment()
-results = experiment.run_attack_experiment(
-    target_systems=["speechbrain", "pyannote"],
-    attack_strategies=["direct_cloning", "characteristic_manipulation"],
-    num_samples=100
-)
+# Generate prompt texts
+python generate_prompt_texts.py
 
-# Analyze results
-experiment.analyze_results(results)
+# Run main experiment
+python run_experiments.py
+
+# Run batch evaluation
+python batch_prompt_eval.py
 ```
+
 
 ## 🔬 Supported Speaker Recognition Systems
 

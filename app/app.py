@@ -9,7 +9,7 @@ import numpy as np
 import av
 from pathlib import Path
 from streamlit_webrtc import webrtc_streamer, WebRtcMode
-from app.voice_generator import VoiceGenerator
+from src.voice_generator import VoiceGenerator
 from app.audio_utils import AudioUtils
 
 # Set page config
@@ -242,10 +242,10 @@ with tab2:
                         tmp_ref_file.write(reference_audio.read())
                     
                     # Generate cloned voice
-                    audio_data = st.session_state.voice_generator.generate_voice_with_cloning(
+                    audio_data = st.session_state.voice_generator.generate_impersonation(
+                        target_voice_path=tmp_ref_file.name,
                         text=target_text,
-                        reference_audio_path=tmp_ref_file.name,
-                        reference_transcript=reference_text,
+                        strategy="direct_cloning",
                         temperature=temperature,
                         top_p=top_p,
                         top_k=top_k

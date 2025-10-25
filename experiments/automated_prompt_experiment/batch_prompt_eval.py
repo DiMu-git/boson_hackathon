@@ -6,7 +6,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import List
 
-from src.core.common_voice_baseline import run_baseline, choose_speaker_and_split
+from src.common_voice_baseline import run_baseline, choose_speaker_and_split
 from tqdm import tqdm
 import json
 import glob
@@ -47,9 +47,10 @@ def evaluate_once_for_prompt(
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Batch evaluate prompts and append results to CSV")
-    project_root = Path(__file__).resolve().parents[1]
-    parser.add_argument("--prompts-glob", type=str, default=str(project_root / "src" / "prompts" / "auto" / "prompt_*.txt"))
-    parser.add_argument("--out-csv", type=Path, default=project_root / "experiments" / "prompt_sweep" / "results.csv")
+    experiment_root = Path(__file__).resolve().parent
+    project_root = experiment_root.parents[1]
+    parser.add_argument("--prompts-glob", type=str, default=str(experiment_root / "prompts" / "prompt_*.txt"))
+    parser.add_argument("--out-csv", type=Path, default=experiment_root / "results" / "prompt_sweep" / "results.csv")
 
     parser.add_argument("--dataset", type=str, choices=["librispeech", "vctk", "auto"], default="librispeech")
     parser.add_argument("--speaker-id", type=str, default=None)

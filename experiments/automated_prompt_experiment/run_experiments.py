@@ -11,7 +11,7 @@ from typing import Dict, List, Any
 import openai
 
 from experiments.automated_prompt_experiment.higgs_eval import synthesize_audio
-from src.core.embedding_scorer import SpeakerEmbedder
+from src.embedding_scorer import SpeakerEmbedder
 from tqdm import tqdm
 
 
@@ -26,11 +26,12 @@ def ensure_dirs(paths: List[Path]) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Run Higgs Audio experiments over prompts and config grids")
-    project_root = Path(__file__).resolve().parents[1]
-    parser.add_argument("--config", type=Path, default=project_root / "experiment_config.json")
-    parser.add_argument("--prompts-dir", type=Path, default=project_root / "src" / "prompts" / "auto")
-    parser.add_argument("--out-dir", type=Path, default=project_root / "outputs")
-    parser.add_argument("--csv", type=Path, default=project_root / "experiments" / "higgs_prompt_eval.csv")
+    experiment_root = Path(__file__).resolve().parent
+    project_root = experiment_root.parents[1]
+    parser.add_argument("--config", type=Path, default=experiment_root / "experiment_config.json")
+    parser.add_argument("--prompts-dir", type=Path, default=experiment_root / "prompts")
+    parser.add_argument("--out-dir", type=Path, default=experiment_root / "outputs")
+    parser.add_argument("--csv", type=Path, default=experiment_root / "results" / "higgs_prompt_eval.csv")
     parser.add_argument("--block", type=str, default="baseline")
 
     args = parser.parse_args()
@@ -45,7 +46,7 @@ def main() -> None:
     client = openai.Client(api_key=api_key, base_url=base_url)
 
     # Prepare embedder for ECAPA similarity
-    embedder = SpeakerEmbedder(cache_dir=project_root / "data" / "emb_cache")
+    embedder = SpeakerEmbedder(cache_dir=experiment_root / "cache" / "emb_cache")
 
     # Baseline block: S1 + D1 + T1 + R1 + K3
     system = cfg["systems"]["S1"]

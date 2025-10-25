@@ -9,7 +9,7 @@ from pathlib import Path
 # Add parent directory to path for imports
 sys.path.append(str(Path(__file__).parent.parent.parent))
 
-from playground.voice_generator import VoiceGenerator
+from src.voice_generator import VoiceGenerator
 
 
 def main():
@@ -45,10 +45,10 @@ def main():
     
     try:
         print("\n🔄 Generating cloned voice...")
-        cloned_audio = generator.generate_voice_with_cloning(
+        cloned_audio = generator.generate_impersonation(
+            target_voice_path=reference_audio_path,
             text=target_text,
-            reference_audio_path=reference_audio_path,
-            reference_transcript=reference_transcript,
+            strategy="direct_cloning",
             temperature=1.0,
             top_p=0.95,
             top_k=50

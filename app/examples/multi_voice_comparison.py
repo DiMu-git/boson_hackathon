@@ -9,8 +9,8 @@ from pathlib import Path
 # Add parent directory to path for imports
 sys.path.append(str(Path(__file__).parent.parent.parent))
 
-from playground.voice_generator import VoiceGenerator
-from playground.audio_utils import AudioUtils
+from src.voice_generator import VoiceGenerator
+from app.audio_utils import AudioUtils
 
 
 def main():

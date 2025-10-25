@@ -1,0 +1,100 @@
+text_000.txt	Hey, quick question—are you free later this afternoon? Everything is under control.
+text_001.txt	Good afternoon. Thank you all for joining us today. Unfortunately, the outcome wasn’t as expected.
+text_002.txt	I appreciate your patience; the results will be announced tomorrow. Thanks again!
+text_003.txt	Hey, quick question—are you free later this afternoon? Unfortunately, the outcome wasn’t as expected.
+text_004.txt	Welcome to our demo. We’ll walk through the key features. Let’s move quickly and keep our momentum.
+text_005.txt	Could you share a brief update on your progress? This is fantastic news!
+text_006.txt	Hey, quick question—are you free later this afternoon? We sincerely appreciate your cooperation.
+text_007.txt	Everything is okay. Take a slow breath and relax. This is fantastic news!
+text_008.txt	Welcome to our demo. We’ll walk through the key features. This is fantastic news!
+text_009.txt	Please proceed to the main hall. The session will begin shortly. We sincerely appreciate your cooperation.
+text_010.txt	Hey, quick question—are you free later this afternoon? Unfortunately, the outcome wasn’t as expected.
+text_011.txt	Good afternoon. Thank you all for joining us today. We will proceed carefully, step by step.
+text_012.txt	This concludes our meeting. Have a wonderful rest of your day. Thanks again!
+text_013.txt	Hey, quick question—are you free later this afternoon? This is fantastic news!
+text_014.txt	Let me double-check the details before I send the email. Thanks again!
+text_015.txt	Hey, quick question—are you free later this afternoon? Thanks again!
+text_016.txt	Everything is okay. Take a slow breath and relax. We sincerely appreciate your cooperation.
+text_017.txt	Hey, quick question—are you free later this afternoon? Everything is under control.
+text_018.txt	This concludes our meeting. Have a wonderful rest of your day. We will proceed carefully, step by step.
+text_019.txt	Let me double-check the details before I send the email. Everything is under control.
+text_020.txt	Let me double-check the details before I send the email.
+text_021.txt	I appreciate your patience; the results will be announced tomorrow. This is fantastic news!
+text_022.txt	Welcome to our demo. We’ll walk through the key features. I am certain we will deliver on time.
+text_023.txt	Please proceed to the main hall. The session will begin shortly. We will proceed carefully, step by step.
+text_024.txt	Welcome to our demo. We’ll walk through the key features. We will proceed carefully, step by step.
+text_025.txt	Could you share a brief update on your progress?
+text_026.txt	This concludes our meeting. Have a wonderful rest of your day. Let’s move quickly and keep our momentum.
+text_027.txt	This concludes our meeting. Have a wonderful rest of your day. Let’s move quickly and keep our momentum.
+text_028.txt	No worries—take your time and let me know if you need help. I am certain we will deliver on time.
+text_029.txt	Welcome to our demo. We’ll walk through the key features. Unfortunately, the outcome wasn’t as expected.
+text_030.txt	Could you share a brief update on your progress? Let’s move quickly and keep our momentum.
+text_031.txt	Hey, quick question—are you free later this afternoon? We sincerely appreciate your cooperation.
+text_032.txt	Good afternoon. Thank you all for joining us today. I am certain we will deliver on time.
+text_033.txt	I appreciate your patience; the results will be announced tomorrow. We sincerely appreciate your cooperation.
+text_034.txt	Could you share a brief update on your progress? This is fantastic news!
+text_035.txt	Welcome to our demo. We’ll walk through the key features. Unfortunately, the outcome wasn’t as expected.
+text_036.txt	Good afternoon. Thank you all for joining us today. I am certain we will deliver on time.
+text_037.txt	This concludes our meeting. Have a wonderful rest of your day. We will proceed carefully, step by step.
+text_038.txt	Could you share a brief update on your progress?
+text_039.txt	Please proceed to the main hall. The session will begin shortly. We will proceed carefully, step by step.
+text_040.txt	Good afternoon. Thank you all for joining us today. This is fantastic news!
+text_041.txt	Hey, quick question—are you free later this afternoon? This is fantastic news!
+text_042.txt	Please proceed to the main hall. The session will begin shortly. Unfortunately, the outcome wasn’t as expected.
+text_043.txt	Welcome to our demo. We’ll walk through the key features. Let’s move quickly and keep our momentum.
+text_044.txt	Hey, quick question—are you free later this afternoon? Everything is under control.
+text_045.txt	Let me double-check the details before I send the email. Please stay tuned for further instructions.
+text_046.txt	Welcome to our demo. We’ll walk through the key features. I am certain we will deliver on time.
+text_047.txt	Everything is okay. Take a slow breath and relax. We sincerely appreciate your cooperation.
+text_048.txt	Welcome to our demo. We’ll walk through the key features. I am certain we will deliver on time.
+text_049.txt	This concludes our meeting. Have a wonderful rest of your day. I am certain we will deliver on time.
+text_050.txt	Hey, quick question—are you free later this afternoon?
+text_051.txt	Everything is okay. Take a slow breath and relax. I am certain we will deliver on time.
+text_052.txt	Please proceed to the main hall. The session will begin shortly.
+text_053.txt	I appreciate your patience; the results will be announced tomorrow. This is fantastic news!
+text_054.txt	I appreciate your patience; the results will be announced tomorrow. Unfortunately, the outcome wasn’t as expected.
+text_055.txt	This concludes our meeting. Have a wonderful rest of your day.
+text_056.txt	Good afternoon. Thank you all for joining us today. We will proceed carefully, step by step.
+text_057.txt	Good afternoon. Thank you all for joining us today. Let’s move quickly and keep our momentum.
+text_058.txt	Could you share a brief update on your progress? Thanks again!
+text_059.txt	Good afternoon. Thank you all for joining us today. Unfortunately, the outcome wasn’t as expected.
+text_060.txt	Hey, quick question—are you free later this afternoon? Let’s move quickly and keep our momentum.
+text_061.txt	This concludes our meeting. Have a wonderful rest of your day. Thanks again!
+text_062.txt	Welcome to our demo. We’ll walk through the key features. Unfortunately, the outcome wasn’t as expected.
+text_063.txt	Hey, quick question—are you free later this afternoon? This is fantastic news!
+text_064.txt	I appreciate your patience; the results will be announced tomorrow. I am certain we will deliver on time.
+text_065.txt	Hey, quick question—are you free later this afternoon? Let’s move quickly and keep our momentum.
+text_066.txt	Could you share a brief update on your progress? Unfortunately, the outcome wasn’t as expected.
+text_067.txt	Could you share a brief update on your progress?
+text_068.txt	Everything is okay. Take a slow breath and relax. Unfortunately, the outcome wasn’t as expected.
+text_069.txt	Good afternoon. Thank you all for joining us today. We sincerely appreciate your cooperation.
+text_070.txt	Could you share a brief update on your progress? Please stay tuned for further instructions.
+text_071.txt	Good afternoon. Thank you all for joining us today.
+text_072.txt	Welcome to our demo. We’ll walk through the key features. Unfortunately, the outcome wasn’t as expected.
+text_073.txt	Welcome to our demo. We’ll walk through the key features. Everything is under control.
+text_074.txt	Everything is okay. Take a slow breath and relax. Everything is under control.
+text_075.txt	This concludes our meeting. Have a wonderful rest of your day. This is fantastic news!
+text_076.txt	Everything is okay. Take a slow breath and relax. Let’s move quickly and keep our momentum.
+text_077.txt	Could you share a brief update on your progress? Let’s move quickly and keep our momentum.
+text_078.txt	Good afternoon. Thank you all for joining us today. We sincerely appreciate your cooperation.
+text_079.txt	No worries—take your time and let me know if you need help. Unfortunately, the outcome wasn’t as expected.
+text_080.txt	This concludes our meeting. Have a wonderful rest of your day.
+text_081.txt	Everything is okay. Take a slow breath and relax. I am certain we will deliver on time.
+text_082.txt	Hey, quick question—are you free later this afternoon? This is fantastic news!
+text_083.txt	Let me double-check the details before I send the email. I am certain we will deliver on time.
+text_084.txt	I appreciate your patience; the results will be announced tomorrow. Unfortunately, the outcome wasn’t as expected.
+text_085.txt	Hey, quick question—are you free later this afternoon? We sincerely appreciate your cooperation.
+text_086.txt	Welcome to our demo. We’ll walk through the key features. This is fantastic news!
+text_087.txt	Welcome to our demo. We’ll walk through the key features. Let’s move quickly and keep our momentum.
+text_088.txt	Welcome to our demo. We’ll walk through the key features. We sincerely appreciate your cooperation.
+text_089.txt	Could you share a brief update on your progress? Let’s move quickly and keep our momentum.
+text_090.txt	Good afternoon. Thank you all for joining us today. Let’s move quickly and keep our momentum.
+text_091.txt	Could you share a brief update on your progress? Please stay tuned for further instructions.
+text_092.txt	No worries—take your time and let me know if you need help. This is fantastic news!
+text_093.txt	Good afternoon. Thank you all for joining us today. Everything is under control.
+text_094.txt	Welcome to our demo. We’ll walk through the key features. Please stay tuned for further instructions.
+text_095.txt	Please proceed to the main hall. The session will begin shortly. This is fantastic news!
+text_096.txt	I appreciate your patience; the results will be announced tomorrow. Unfortunately, the outcome wasn’t as expected.
+text_097.txt	Hey, quick question—are you free later this afternoon? Let’s move quickly and keep our momentum.
+text_098.txt	Good afternoon. Thank you all for joining us today. Please stay tuned for further instructions.
+text_099.txt	Welcome to our demo. We’ll walk through the key features. Please stay tuned for further instructions.
