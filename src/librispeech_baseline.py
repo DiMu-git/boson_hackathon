@@ -27,6 +27,7 @@ from transformers import pipeline as hf_pipeline
 class Split:
     train_paths: List[Path]
     test_paths: List[Path]
+    path_to_transcript: Dict[Path, str]
 
 
 def _choose_from_librispeech(dataset_root: Path, min_clips: int, seed: int, train_frac: float, speaker_id: Optional[str] = None) -> Tuple[str, Split]:
@@ -112,7 +113,7 @@ def _choose_from_librispeech(dataset_root: Path, min_clips: int, seed: int, trai
         utt_stem = flac_path.stem  # e.g., 19-198-0025
         return mapping.get(utt_stem, "")
 
-    # Convert to wav cache for chosen speaker only
+    # Convert to wav cache for chosen speaker only and capture reference transcripts
     items: List[Dict] = []
     for idx, flac_path in enumerate(tqdm(chosen_files, desc=f"Caching speaker {chosen}")):
         spk_dir = cache_root / chosen
@@ -133,6 +134,7 @@ def _choose_from_librispeech(dataset_root: Path, min_clips: int, seed: int, trai
     return chosen, Split(
         train_paths=[x["path"] for x in train_items],
         test_paths=[x["path"] for x in test_items],
+        path_to_transcript={x["path"]: x["sentence"] for x in items},
     )
 
 
@@ -329,6 +331,7 @@ def run_baseline(
     dataset: str,
     eval_downsample_frac: float,
     speaker_id: Optional[str] = None,
+    system_prompt: str = "DEFAULT",
     eval_count: Optional[int] = None,
 ) -> None:
     clone_out_dir.mkdir(parents=True, exist_ok=True)
@@ -354,10 +357,14 @@ def run_baseline(
     clone_paths: List[Path] = []
     to_clone = split.train_paths if max_train_clones is None else split.train_paths[:max_train_clones]
     for i, ref in enumerate(tqdm(to_clone, desc="Cloning")):
+        # Look up transcript for this reference (if available)
+        reference_transcript = split.path_to_transcript.get(ref, "")
         audio = generator.generate_impersonation(
             target_voice_path=str(ref),
             text=prompt_text,
             strategy="direct_cloning",
+            reference_transcript=reference_transcript,
+            system_prompt=system_prompt,
         )
         out_path = clone_out_dir / f"clone_{i:04d}.wav"
         generator.save_audio(audio, str(out_path), sample_rate=sample_rate)
@@ -438,6 +445,7 @@ def run_baseline(
         "mean_wavlm_real_vs_real": rr_wavlm,
         "mean_wavlm_clone_vs_real": cr_wavlm,
         "prompt_file": str(prompt_file),
+        "system_prompt": system_prompt,
     }
 
     (clone_out_dir / "baseline_results.json").write_text(json.dumps(results, indent=2), encoding="utf-8")
@@ -457,6 +465,8 @@ def main() -> None:
                         help="Fraction of test set to evaluate (e.g., 0.1 for 10%)")
     parser.add_argument("--speaker-id", type=str, default=None,
                         help="Optional fixed speaker id (e.g., 211 for LibriSpeech)")
+    parser.add_argument("--system-prompt", type=str, default="DEFAULT",
+                        help="System prompt to use (or DEFAULT to use built-in)")
     parser.add_argument("--eval-count", type=int, default=None,
                         help="If set, evaluate exactly this many test items (overrides fraction)")
 
@@ -484,6 +494,7 @@ def main() -> None:
                 dataset=("librispeech" if args.dataset == "auto" else args.dataset),
                 eval_downsample_frac=args.eval_downsample_frac,
                 speaker_id=args.speaker_id,
+                system_prompt=args.system_prompt,
                 eval_count=args.eval_count,
             )
     else:
@@ -499,6 +510,7 @@ def main() -> None:
             dataset=("librispeech" if args.dataset == "auto" else args.dataset),
             eval_downsample_frac=args.eval_downsample_frac,
             speaker_id=args.speaker_id,
+            system_prompt=args.system_prompt,
             eval_count=args.eval_count,
         )
 

@@ -6,7 +6,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import List
 
-from src.common_voice_baseline import run_baseline, choose_speaker_and_split
+from src.librispeech_baseline import run_baseline, choose_speaker_and_split
 from tqdm import tqdm
 import json
 import glob
@@ -23,6 +23,7 @@ def evaluate_once_for_prompt(
     sample_rate: int,
     max_train_clones: int | None,
     eval_downsample_frac: float,
+    eval_count: int | None,
 ) -> dict:
     # Reuse the existing run_baseline by directing outputs to a prompt-specific folder
     run_baseline(
@@ -36,6 +37,7 @@ def evaluate_once_for_prompt(
         max_train_clones=max_train_clones,
         dataset=("librispeech" if dataset == "auto" else dataset),
         eval_downsample_frac=eval_downsample_frac,
+        eval_count=eval_count,
         speaker_id=speaker_id,
     )
     # Read the results that run_baseline writes
@@ -59,7 +61,8 @@ def main() -> None:
     parser.add_argument("--train-frac", type=float, default=0.10)
     parser.add_argument("--sample-rate", type=int, default=24000)
     parser.add_argument("--max-train-clones", type=int, default=3)
-    parser.add_argument("--eval-downsample-frac", type=float, default=0.10)
+    parser.add_argument("--eval-downsample-frac", type=float, default=1.0)
+    parser.add_argument("--eval-count", type=int, default=10)
 
     args = parser.parse_args()
 
@@ -80,6 +83,10 @@ def main() -> None:
         "mean_overall_clone_vs_real",
         "mean_embed_real_vs_real",
         "mean_embed_clone_vs_real",
+        "mean_wavlm_real_vs_real",
+        "mean_wavlm_clone_vs_real",
+        "mean_wer_real_vs_real",
+        "mean_wer_clone_vs_real",
         "num_test",
         "num_test_evaluated",
         "num_clones",
@@ -104,6 +111,7 @@ def main() -> None:
                 sample_rate=args.sample_rate,
                 max_train_clones=args.max_train_clones,
                 eval_downsample_frac=args.eval_downsample_frac,
+                eval_count=args.eval_count,
                 speaker_id=args.speaker_id,
             )
             # Load prompt text
@@ -117,6 +125,10 @@ def main() -> None:
                 results.get("mean_overall_clone_vs_real", ""),
                 results.get("mean_embed_real_vs_real", ""),
                 results.get("mean_embed_clone_vs_real", ""),
+                results.get("mean_wavlm_real_vs_real", ""),
+                results.get("mean_wavlm_clone_vs_real", ""),
+                results.get("mean_wer_real_vs_real", ""),
+                results.get("mean_wer_clone_vs_real", ""),
                 results.get("num_test", ""),
                 results.get("num_test_evaluated", results.get("num_test", "")),
                 results.get("num_clones", ""),
