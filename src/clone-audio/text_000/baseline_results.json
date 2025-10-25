@@ -1,0 +1,15 @@
+{
+  "speaker_id": "5022",
+  "num_train": 11,
+  "num_test": 104,
+  "num_test_evaluated": 10,
+  "num_clones": 5,
+  "mean_overall_real_vs_real": 0.9349640034921469,
+  "mean_overall_clone_vs_real": 0.933786751318894,
+  "mean_embed_real_vs_real": 0.7779941315000708,
+  "mean_embed_clone_vs_real": 0.48573092222213743,
+  "mean_wavlm_real_vs_real": 0.9457728797739202,
+  "mean_wavlm_clone_vs_real": 0.9162374246120453,
+  "prompt_file": "/Users/mudi/Documents/boson_ha/boson_hackathon/experiments/automated_prompt_experiment/prompts/text_000.txt",
+  "system_prompt": "DEFAULT"
+}

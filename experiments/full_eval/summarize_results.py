@@ -4,6 +4,7 @@ import argparse
 import csv
 import json
 from collections import defaultdict
+from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Tuple
 
@@ -115,6 +116,9 @@ def main() -> None:
     project_root = Path(__file__).resolve().parents[2]
     csv_in = project_root / "experiments" / "results" / "results.csv"
     out_json = project_root / "experiments" / "results" / "metrics_summary.json"
+    leaderboard_csv = project_root / "experiments" / "results" / "prompt_leaderboard.csv"
+    top5_csv = project_root / "experiments" / "results" / "prompt_leaderboard_top10_per_speaker.csv"
+    settings_json = project_root / "experiments" / "results" / "recommended_settings.json"
     plots_dir = project_root / "experiments" / "plots"
 
     args = parser.parse_args()
@@ -185,6 +189,123 @@ def main() -> None:
 
     print(f"Wrote metrics summary -> {out_json}")
     print(f"Saved plots -> {plots_dir}")
+
+    # Build per-prompt leaderboard per speaker: (speaker_id, prompt_style_id, sentence_id)
+    # RR baseline is computed over that speaker's RR rows (not per prompt).
+    leaderboard_rows: List[List[str]] = [[
+        "speaker_id", "prompt_style_id", "sentence_id", "cr_mean_wavlm", "rr_mean_wavlm", "ci_mean_wavlm",
+        "cr_rr_ratio", "auc_wavlm", "eer_wavlm", "cr_median_wer", "count_cr", "count_rr", "count_ci"
+    ]]
+
+    for spk, spk_rows in by_spk.items():
+        # Speaker baseline RR/CI (independent of prompt)
+        rr_w_spk = group_values(spk_rows, "RR", "wavlm_sim")
+        ci_w_spk = group_values(spk_rows, "CI", "wavlm_sim")
+        rr_mean_spk = float(np.nanmean(rr_w_spk)) if rr_w_spk else float("nan")
+
+        # Group by prompt within this speaker
+        by_prompt_within: Dict[tuple, List[Dict[str, str]]] = defaultdict(list)
+        for r in spk_rows:
+            key = (r.get("prompt_style_id", ""), r.get("sentence_id", ""))
+            by_prompt_within[key].append(r)
+
+        for (style, sent), rs in by_prompt_within.items():
+            # CR rows for this prompt
+            cr_w = [to_float(r["wavlm_sim"]) for r in rs if r.get("pair_type") == "CR"]
+            ci_w = [to_float(r["wavlm_sim"]) for r in rs if r.get("pair_type") == "CI"]
+            cr_mean = float(np.nanmean(cr_w)) if cr_w else float("nan")
+            ci_mean = float(np.nanmean(ci_w)) if ci_w else float("nan")
+            ratio = float("nan")
+            if np.isfinite(cr_mean) and np.isfinite(rr_mean_spk) and rr_mean_spk > 0:
+                ratio = cr_mean / rr_mean_spk
+            auc_s, eer_s = compute_auc_eer(cr_w, ci_w if ci_w else ci_w_spk)
+            cr_wer_vals = [to_float(r.get("wer", "nan")) for r in rs if r.get("pair_type") == "CR"]
+            cr_wer_med = float(np.nanmedian(cr_wer_vals)) if cr_wer_vals else float("nan")
+            leaderboard_rows.append([
+                str(spk), str(style), str(sent), f"{cr_mean:.6f}", f"{rr_mean_spk:.6f}", f"{ci_mean:.6f}",
+                f"{ratio:.6f}", f"{auc_s:.6f}", f"{eer_s:.6f}", f"{cr_wer_med:.6f}",
+                str(len(cr_w)), str(len(rr_w_spk)), str(len(ci_w) if ci_w else len(ci_w_spk)),
+            ])
+
+    # Sort by ratio desc, then AUC desc
+    header = leaderboard_rows[0]
+    data_rows = leaderboard_rows[1:]
+    def row_key(row: List[str]):
+        try:
+            return (-float(row[5]), -float(row[6]))
+        except Exception:
+            return (0.0, 0.0)
+    data_rows.sort(key=row_key)
+    leaderboard_csv.parent.mkdir(parents=True, exist_ok=True)
+    with leaderboard_csv.open("w", newline="", encoding="utf-8") as f:
+        wr = csv.writer(f)
+        wr.writerow(header)
+        wr.writerows(data_rows)
+    print(f"Wrote per-prompt leaderboard -> {leaderboard_csv}")
+
+    # Build per-speaker TOP-10
+    by_spk_rows: Dict[str, List[List[str]]] = defaultdict(list)
+    # data_rows columns: [speaker_id, style, sentence_id, cr_mean, rr_mean, ci_mean, ratio, auc, eer, cr_med_wer, cnt_cr, cnt_rr, cnt_ci]
+    for row in data_rows:
+        spk = row[0]
+        by_spk_rows[spk].append(row)
+
+    top5_header = header
+    top5_csv.parent.mkdir(parents=True, exist_ok=True)
+    with top5_csv.open("w", newline="", encoding="utf-8") as f2:
+        wr2 = csv.writer(f2)
+        wr2.writerow(top5_header)
+        for spk, rows_spk in by_spk_rows.items():
+            rows_spk_sorted = sorted(rows_spk, key=row_key)[:10]
+            wr2.writerows(rows_spk_sorted)
+    print(f"Wrote per-speaker TOP-10 leaderboard -> {top5_csv}")
+
+    # Compute setting frequency from TOP-10 per speaker file
+    freq: Dict[tuple, int] = defaultdict(int)
+    freq_by_spk: Dict[str, Dict[tuple, int]] = defaultdict(lambda: defaultdict(int))
+    # read top5_csv we just wrote
+    with top5_csv.open("r", encoding="utf-8") as f3:
+        rd3 = csv.DictReader(f3)
+        for r in rd3:
+            style = r.get("prompt_style_id", "")
+            sent = r.get("sentence_id", "")
+            spk = r.get("speaker_id", "")
+            if style and sent:
+                key = (style, sent)
+                freq[key] += 1
+                freq_by_spk[spk][key] += 1
+
+    global_ranked = sorted(
+        (
+            {"prompt_style_id": k[0], "sentence_id": k[1], "count": c}
+            for k, c in freq.items()
+        ),
+        key=lambda x: (-x["count"], x["prompt_style_id"], int(x["sentence_id"]) if str(x["sentence_id"]).isdigit() else 0),
+    )
+
+    by_spk_ranked: Dict[str, List[Dict[str, str]]] = {}
+    for spk, d in freq_by_spk.items():
+        ranked = sorted(
+            (
+                {"prompt_style_id": k[0], "sentence_id": k[1], "count": c}
+                for k, c in d.items()
+            ),
+            key=lambda x: (-x["count"], x["prompt_style_id"], int(x["sentence_id"]) if str(x["sentence_id"]).isdigit() else 0),
+        )
+        by_spk_ranked[spk] = ranked
+
+    settings_payload = {
+        "generated_at": datetime.utcnow().isoformat(),
+        "source": str(top5_csv),
+        "global_frequency": global_ranked,
+        "by_speaker_frequency": by_spk_ranked,
+        "settings_order": [
+            {"prompt_style_id": s["prompt_style_id"], "sentence_id": s["sentence_id"]}
+            for s in global_ranked
+        ],
+    }
+    settings_json.write_text(json.dumps(settings_payload, indent=2), encoding="utf-8")
+    print(f"Wrote recommended settings JSON -> {settings_json}")
 
 
 if __name__ == "__main__":

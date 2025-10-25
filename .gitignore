@@ -185,7 +185,6 @@ datasets/
 !datasets/README.md
 
 # Experiment results
-experiments/results/
 !experiments/results/.gitkeep
 !experiments/results/README.md
 
