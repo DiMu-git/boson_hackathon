@@ -1,289 +1,133 @@
 # Voice Impersonation Attack Framework (VIAF)
 
-> **Boson Hackathon 2025**: Comprehensive experimental evaluation of voice cloning capabilities and speaker recognition system vulnerabilities using Higgs Audio v2
+> **Boson Hackathon 2025**: Can we fool speaker recognition systems with AI-generated voices? Let's find out! 🎤🤖
 
-## 🎯 Project Overview
+## 🎯 What This Repo Is About
 
-The Voice Impersonation Attack Framework (VIAF) is a research-driven project that systematically evaluates the security implications of AI-generated voices through rigorous experimentation. Using Boson's Higgs Audio v2 model, this framework conducts comprehensive experiments to assess voice cloning capabilities, speaker recognition system vulnerabilities, and the effectiveness of different attack strategies.
+This is a hackathon project that explores whether we can use Boson's Higgs Audio v2 to generate voices that can trick speaker recognition systems. Think of it as a "voice security stress test" - we're basically trying to break voice authentication systems to see how robust they really are.
 
-## 🔬 Experimental Focus
+## 🔬 What We're Testing
 
-This project centers around two major experimental tracks:
+### The Big Questions
+We're basically asking:
+- **Can AI voices fool speaker recognition?** - How good are we at making fake voices that sound real?
+- **Which systems are easiest to trick?** - Some speaker recognition systems might be more vulnerable than others
+- **What makes a good voice clone?** - Different prompts and settings might work better
+- **How do we measure success?** - We need good ways to tell if our fake voices are convincing
 
-### 1. Automated Prompt Experimentation
-**Objective**: Systematically evaluate how different prompts and sentences affect voice cloning quality and identity preservation.
+### Our Approach
+We're running two main types of experiments:
 
-**Key Findings**:
-- **Identity Fidelity**: Achieved WavLM cosine similarity ratios of 0.99+ for optimal settings
-- **Best Performing Combinations**:
-  - P1 (Neutral) + Sentence 5: Highest overall performance
-  - P1 (Neutral) + Sentence 3: Strong identity preservation
-  - P2 (Identity-Preserving) + Sentence 7: Best for identity-critical scenarios
-- **Separability**: AUC scores up to 0.96 with low Equal Error Rates (EER)
-- **Cross-Speaker Consistency**: Consistent patterns across different speakers (211, 4014, 730)
+#### 1. Prompt Testing
+- **Testing 100+ different prompts** to see which ones work best for voice cloning
+- **Using different sentences** to see if some are easier to clone than others
+- **Measuring how similar** our fake voices are to the real ones
+- **Testing across different speakers** to see if some voices are easier to clone
 
-### 2. Decoding Parameter Optimization
-**Objective**: Optimize generation parameters (temperature, top_p, top_k) for maximum identity fidelity.
+#### 2. Parameter Tuning
+- **Playing with generation settings** like temperature, top_p, and top_k
+- **Finding the sweet spot** for making voices that sound most like the target
+- **Testing different combinations** to see what works best
+- **Cross-checking our results** with multiple voice analysis methods
 
-**Key Findings**:
-- **Optimal Parameters**: temperature=0.7, top_p=0.95, top_k=50 for most speakers
-- **Identity Preservation**: CR/RR ratios approaching 0.99-1.00 for best configurations
-- **Cross-Validator Agreement**: Strong correlation between WavLM and ECAPA-TDNN embeddings
-- **Speaker-Specific Tuning**: Different speakers require different parameter combinations
+## 🏗️ What's In This Repo
 
-## 📊 Experimental Results
+### The Core Stuff
+- **`src/voice_generator.py`** - The main engine that generates voices using Higgs Audio v2
+- **`src/attack_strategies.py`** - Different ways to try to fool speaker recognition systems
+- **`src/voice_analyzer.py`** - Tools to analyze and compare voices
+- **`src/embedding_scorer.py`** - Scoring how similar voices are to each other
 
-### Performance Metrics
-- **Identity Similarity**: WavLM cosine similarity up to 0.92+ for cloned voices
-- **Separability**: AUC scores up to 1.00 for clone vs impostor discrimination
-- **Cross-Validation**: ECAPA-TDNN embeddings confirm WavLM findings
-- **Error Rates**: EER as low as 0.00 for optimal configurations
+### The Experiments
+- **`experiments/automated_prompt_experiment/`** - Testing tons of different prompts automatically
+- **`experiments/decoding_grid_experiment/`** - Finding the best generation parameters
+- **`experiments/full_eval/`** - Running comprehensive tests and analyzing results
 
-### Key Insights
-1. **Prompt Engineering Matters**: Different prompt styles significantly impact cloning quality
-2. **Parameter Sensitivity**: Decoding parameters have substantial effects on identity preservation
-3. **Speaker Variability**: Different speakers require tailored approaches
-4. **Robust Validation**: Multiple embedding methods confirm experimental findings
+### The Demo Apps
+- **`app/streamlit_app.py`** - A web app to try out voice cloning
+- **`app_legacy/`** - Some older demo code and examples
 
-## 🏗️ Project Structure
+## 📊 What We Found
 
-```
-boson_hackathon/
-├── experiments/                     # Core experimental framework
-│   ├── automated_prompt_experiment/  # Prompt optimization experiments
-│   │   ├── run_experiments.py       # Main experiment runner
-│   │   ├── batch_prompt_eval.py     # Batch evaluation system
-│   │   ├── higgs_eval.py            # Higgs model evaluation
-│   │   ├── generate_prompt_texts.py # Prompt generation utilities
-│   │   ├── prompts/                 # 100+ test prompts
-│   │   ├── outputs/                 # Generated audio samples
-│   │   └── results/                 # Comprehensive results
-│   │       ├── prompt_leaderboard.csv
-│   │       ├── recommended_settings.json
-│   │       └── metrics_summary.json
-│   ├── decoding_grid_experiment/   # Parameter optimization
-│   │   ├── run_decoding_grid.py    # Grid search implementation
-│   │   └── analyze_decoding_results.py
-│   ├── full_eval/                  # Comprehensive evaluation
-│   │   ├── run_full_experiment.py  # Full experimental pipeline
-│   │   ├── metrics.py              # Evaluation metrics
-│   │   └── summarize_results.py    # Results analysis
-│   └── results/                    # Final experimental results
-│       ├── automated_prompt_generation/
-│       │   ├── final_report.md     # Detailed findings
-│       │   ├── prompt_leaderboard.csv
-│       │   └── recommended_settings.json
-│       └── decoding_grid/
-│           ├── final_report.md     # Parameter optimization results
-│           └── grid_results.csv
-├── app/                           # Demo applications
-│   ├── streamlit_app.py           # Voice Lock system demo
-│   ├── backend/                   # API backend
-│   └── voice_embeddings/          # Voice embedding storage
-├── app_legacy/                    # Legacy demo applications
-│   ├── app.py                     # Original voice generation demo
-│   ├── boson_api_tester.py        # API testing utilities
-│   └── examples/                  # Example implementations
-├── src/                           # Core framework components
-│   ├── voice_generator.py         # Voice generation engine
-│   ├── voice_analyzer.py          # Voice analysis tools
-│   ├── embedding_scorer.py        # Speaker recognition scoring
-│   └── attack_strategies.py       # Attack methodologies
-└── datasets/                      # Experimental datasets
-    ├── generated_voices/          # AI-generated samples
-    ├── ground_truth/              # Reference labels
-    └── target_voices/             # Target speaker samples
-```
+### The Good News (for attackers 😈)
+- **We can get really close!** - Some of our fake voices are 99%+ similar to the real ones
+- **Different prompts matter a lot** - Some work way better than others
+- **Parameters make a huge difference** - The right settings can dramatically improve results
+- **Some speakers are easier to clone** - Not all voices are equally hard to fake
 
-## 🚀 Quick Start
+### The Numbers
+- **Best similarity scores**: Up to 0.92+ on WavLM cosine similarity
+- **Best parameters**: temperature=0.7, top_p=0.95, top_k=50 (usually)
+- **Best prompts**: Neutral prompts + certain sentences work best
+- **Success rates**: We can fool some systems pretty consistently
 
-### Prerequisites
-- Python 3.11+
-- [uv](https://docs.astral.sh/uv/) package manager
-- CUDA-compatible GPU (recommended)
-- Boson API key
+## 🎯 Why This Matters
 
-### Installation
+### For Security
+- **Voice authentication might not be as secure** as we thought
+- **Different systems have different vulnerabilities** - some are easier to fool
+- **We can measure and quantify these risks** - it's not just theoretical
 
-1. **Clone and setup:**
-   ```bash
-   git clone <repository-url>
-   cd boson_hackathon
-   uv sync
-   cp env.example .env
-   ```
+### For AI Development
+- **Voice generation is getting really good** - the quality is impressive
+- **We can optimize for specific goals** - like making voices that fool recognition systems
+- **There are measurable ways to improve** - it's not just trial and error
 
-2. **Configure environment:**
-   ```bash
-   # Edit .env with your API keys
-   BOSON_API_KEY=your_boson_api_key_here
-   BOSON_BASE_URL=https://hackathon.boson.ai/v1
-   CUDA_VISIBLE_DEVICES=0
-   ```
+## 🛠️ The Tech Stack
 
-### Running Experiments
+### What We Used
+- **Boson's Higgs Audio v2** - For generating the voices
+- **Multiple speaker recognition systems** - To test against different approaches
+- **WavLM, ECAPA-TDNN, MFCC** - Different ways to analyze and compare voices
+- **Python + lots of ML libraries** - For all the analysis and experiments
 
-#### Automated Prompt Experimentation
-```bash
-cd experiments/automated_prompt_experiment/
+### How We Built It
+- **Modular design** - Easy to add new attack strategies or test new systems
+- **Automated experiments** - We can test hundreds of combinations automatically
+- **Comprehensive metrics** - Multiple ways to measure success
+- **Easy to extend** - Add new speakers, systems, or attack methods
 
-# Generate test prompts
-python generate_prompt_texts.py
+## 🚀 What's Next
 
-# Run main experiment
-python run_experiments.py
+### Potential Improvements
+- **More attack strategies** - There are probably other ways to fool these systems
+- **Better optimization** - We could probably get even better results
+- **More speaker recognition systems** - Test against more targets
+- **Real-time attacks** - Can we fool systems in real-time?
 
-# Batch evaluation
-python batch_prompt_eval.py
-```
+### Research Directions
+- **Defense mechanisms** - How can we make these systems more robust?
+- **Detection methods** - Can we tell when a voice is AI-generated?
+- **Better metrics** - More sophisticated ways to measure voice similarity
+- **Cross-domain attacks** - What about fooling other types of voice systems?
 
-#### Decoding Parameter Optimization
-```bash
-cd experiments/decoding_grid_experiment/
+## 📚 Files You Might Care About
 
-# Run parameter grid search
-python run_decoding_grid.py
-
-# Analyze results
-python analyze_decoding_results.py
-```
-
-#### Full Evaluation Pipeline
-```bash
-cd experiments/full_eval/
-
-# Run comprehensive evaluation
-python run_full_experiment.py
-
-# Generate summary report
-python summarize_results.py
-```
-
-## 📈 Experimental Methodology
-
-### Data Preparation
-- **Dataset**: LibriSpeech (top speakers by clip count)
-- **References**: 2-3 clips per speaker (6-12s each, 16kHz mono)
-- **Real Samples**: 10 normalized clips per speaker
-- **Impostor Samples**: 10 clips from other speakers
-- **Generated Clones**: 10 per speaker for fixed sentences
-
-### Evaluation Metrics
-- **WavLM Cosine Similarity**: Primary identity similarity measure
-- **ECAPA-TDNN Cosine**: Cross-validator for identity verification
-- **MFCC20 Cosine**: Timbre spectrum analysis
-- **Pitch Similarity**: Fundamental frequency comparison
-- **AUC/EER**: Separability and error rate analysis
-- **WER**: Intelligibility assessment
-
-### Experimental Design
-- **Prompt Styles**: P1 (Neutral) vs P2 (Identity-Preserving)
-- **Sentence Variations**: 10 fixed sentences per speaker
-- **Parameter Grid**: temperature ∈ {0.7, 1.0}, top_p ∈ {0.9, 0.95}, top_k ∈ {20, 50}
-- **Pairing Strategy**: Real-Real (RR), Clone-Real (CR), Clone-Impostor (CI)
-
-## 🎯 Key Experimental Findings
-
-### 1. Prompt Engineering Impact
-- **Neutral prompts (P1)** generally outperform identity-preserving prompts (P2)
-- **Sentence 5** consistently shows highest performance across speakers
-- **Prompt-sentence combinations** have significant impact on cloning quality
-
-### 2. Parameter Optimization Results
-- **Temperature 0.7** provides better identity stability than 1.0
-- **Top_p 0.95** generally outperforms 0.9 for identity similarity
-- **Top_k 50** improves similarity for most speakers
-- **Speaker-specific tuning** required for optimal performance
-
-### 3. Cross-Validation Insights
-- **WavLM and ECAPA-TDNN** show strong correlation (r > 0.8)
-- **Multiple embedding methods** confirm experimental findings
-- **Robust validation** across different speaker recognition paradigms
-
-### 4. Security Implications
-- **High identity fidelity** achievable with optimized settings
-- **Strong separability** maintained between clones and impostors
-- **Measurable thresholds** for deployment decisions
-- **Quantified risk assessment** for voice security
-
-## 🔬 Research Contributions
-
-### Novel Methodologies
-1. **Systematic Prompt Evaluation**: First comprehensive analysis of prompt engineering for voice cloning
-2. **Parameter Optimization Framework**: Automated tuning of generation parameters for identity preservation
-3. **Cross-Validator Validation**: Multi-embedding approach for robust evaluation
-4. **Quantitative Security Assessment**: Measurable metrics for voice impersonation risk
-
-### Experimental Insights
-1. **Prompt Engineering**: Significant impact of prompt style on cloning quality
-2. **Parameter Sensitivity**: Critical role of decoding parameters in identity preservation
-3. **Speaker Variability**: Need for speaker-specific optimization strategies
-4. **Validation Robustness**: Importance of cross-validator confirmation
-
-## 📊 Results Summary
-
-### Best Performing Configurations
-- **Speaker 211**: P1+Sentence5, temperature=0.7, top_p=0.95, top_k=50
-  - CR/RR ratio: 0.992, AUC: 1.00, EER: 0.00
-- **Speaker 4014**: P1+Sentence5, temperature=0.7, top_p=0.95, top_k=50
-  - CR/RR ratio: 0.992, AUC: 0.93, EER: 0.05
-- **Speaker 730**: P1+Sentence3, temperature=1.0, top_p=0.9, top_k=20
-  - CR/RR ratio: 0.979, AUC: 0.63, EER: 0.27
-
-### Performance Benchmarks
-- **Identity Similarity**: Up to 0.92+ WavLM cosine similarity
-- **Separability**: AUC scores up to 1.00 for optimal configurations
-- **Error Rates**: EER as low as 0.00 for best settings
-- **Cross-Validation**: Strong agreement between WavLM and ECAPA-TDNN
-
-## 🛠️ Technical Implementation
-
-### Core Framework
-- **Voice Generation**: Higgs Audio v2 integration with optimized parameters
-- **Speaker Recognition**: Multiple embedding methods (WavLM, ECAPA-TDNN, MFCC)
-- **Evaluation Pipeline**: Automated metrics calculation and analysis
-- **Results Management**: Comprehensive CSV output and visualization
-
-### Experimental Infrastructure
-- **Batch Processing**: Automated evaluation of 100+ prompt combinations
-- **Parameter Grid Search**: Systematic optimization of generation parameters
-- **Caching System**: Efficient storage of embeddings and intermediate results
-- **Results Analysis**: Automated report generation and visualization
-
-## 📚 Documentation
-
-- **[Project Specification](PROJECT_SPEC.md)**: Comprehensive project documentation
-- **[Experiment Results](experiments/results/)**: Detailed experimental findings
-- **[API Documentation](app/backend/README.md)**: Backend API documentation
-- **[Demo Applications](app/)**: Interactive demonstration tools
+- **`PROJECT_SPEC.md`** - More detailed technical specs
+- **`experiments/results/`** - All our experimental results and findings
+- **`app/`** - Demo applications to try out the voice cloning
+- **`src/`** - The core code for voice generation and analysis
 
 ## 🤝 Contributing
 
-This project demonstrates the capabilities of modern voice generation technology and its security implications. Contributions are welcome for:
-
-1. **Additional Experiments**: New evaluation methodologies
-2. **Enhanced Metrics**: Improved evaluation criteria
-3. **Security Analysis**: Deeper vulnerability assessment
-4. **Defense Strategies**: Countermeasures against voice impersonation
+This is a hackathon project, but if you want to:
+- **Add new attack strategies** - Go for it!
+- **Test against more systems** - The more the merrier
+- **Improve the metrics** - Better ways to measure success
+- **Fix bugs** - There are probably some 😅
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT License - feel free to use this for your own voice security research!
 
-## 🙏 Acknowledgments
+## 🙏 Thanks
 
-- **Boson AI** for providing the Higgs Audio v2 API and hackathon platform
-- **Speaker Recognition Community** for open-source tools and datasets
-- **Research Contributors** for experimental design and analysis
-
-## 📞 Contact
-
-- **Project Team**: [team@boson.ai](mailto:team@boson.ai)
-- **Issues**: [GitHub Issues](https://github.com/boson-ai/voice-impersonation-attack-framework/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/boson-ai/voice-impersonation-attack-framework/discussions)
+- **Boson AI** for the awesome Higgs Audio v2 API
+- **The speaker recognition community** for all the open-source tools
+- **Everyone who helped** with this hackathon project
 
 ---
 
 **Built for Boson Hackathon 2025** 🚀
 
-*Demonstrating the power of systematic experimentation in understanding AI voice generation capabilities and security implications.*
+*Can we break voice authentication? Spoiler: Yes, we can! 😎*
