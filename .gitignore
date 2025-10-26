@@ -220,6 +220,8 @@ data/
 
 app/voice_embeddings/
 
+experiments/outputs_decoding_grid
+cache/
 
 embeddings/
 features/

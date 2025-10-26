@@ -15,3 +15,13 @@ run_higgs_eval:
 
 run_generate_prompt_texts:
 	uv run automated_prompt_experiment/generate_prompt_texts.py
+
+### Decoding grid experiment
+run_decoding_grid_small:
+	uv run python decoding_grid_experiment/run_decoding_grid.py --grid small
+
+run_decoding_grid_large:
+	uv run python decoding_grid_experiment/run_decoding_grid.py --grid large
+
+analyze_decoding_grid:
+	uv run python decoding_grid_experiment/analyze_decoding_results.py
