@@ -319,15 +319,41 @@ def show_authentication_page():
                             st.success("✅ Authentication successful!")
                             st.balloons()
                             
-                            # Show authentication details
-                            col1, col2 = st.columns(2)
+                            # Show detailed authentication results
+                            st.subheader("🔍 Authentication Results")
+                            
+                            # Main metrics
+                            col1, col2, col3 = st.columns(3)
                             with col1:
-                                st.metric("Confidence Score", f"{result['confidence']:.3f}")
-                                st.metric("Status", "✅ Verified")
+                                st.metric("Overall Confidence", f"{result['confidence']:.3f}")
                             with col2:
+                                st.metric("Status", "✅ Verified")
+                            with col3:
                                 security = result["security_analysis"]
                                 st.metric("Security Level", security['security_level'].title())
-                                st.metric("Attack Detected", "❌ No" if not security['attack_detection']['is_attack'] else "⚠️ Yes")
+                            
+                            # Similarity scores breakdown
+                            st.subheader("📊 Similarity Analysis")
+                            similarity_scores = result.get("similarity_scores", {})
+                            
+                            if similarity_scores:
+                                col1, col2 = st.columns(2)
+                                with col1:
+                                    st.write("**Similarity Scores:**")
+                                    for key, value in similarity_scores.items():
+                                        st.write(f"- {key.replace('_', ' ').title()}: {value:.3f}")
+                                
+                                with col2:
+                                    st.write("**Security Analysis:**")
+                                    st.write(f"- Attack Detection: {'❌ No' if not security['attack_detection']['is_attack'] else '⚠️ Yes'}")
+                                    st.write(f"- Threshold Used: {security['threshold_used']:.3f}")
+                            
+                            # Show success message with delay
+                            st.success("🎉 Welcome back! Redirecting to dashboard...")
+                            
+                            # Add a small delay to show the results before redirecting
+                            import time
+                            time.sleep(2)
                             
                             # Auto-login after successful authentication
                             st.session_state.user_authenticated = True
@@ -354,15 +380,12 @@ def show_user_dashboard():
     st.markdown("Manage your voice profile and explore advanced features.")
     
     # Navigation tabs
-    tab1, tab2, tab3 = st.tabs(["🏠 Dashboard", "🔍 Voice Analysis", "👤 Profile Management"])
+    tab1, tab2 = st.tabs(["🏠 Dashboard", "👤 Profile Management"])
     
     with tab1:
         show_dashboard_home()
     
     with tab2:
-        show_voice_analysis()
-    
-    with tab3:
         show_profile_management()
 
 def show_dashboard_home():
@@ -387,181 +410,73 @@ def show_dashboard_home():
     col1, col2 = st.columns(2)
     
     with col1:
-        st.markdown("**🔍 Voice Analysis**")
-        st.markdown("Analyze voice characteristics and detect potential security threats.")
-        if st.button("Start Analysis", key="quick_analysis"):
-            st.session_state.current_tab = "analysis"
-            st.rerun()
-    
-    with col2:
         st.markdown("**👤 Profile Management**")
         st.markdown("View and manage your voice profile settings.")
         if st.button("Manage Profile", key="quick_profile"):
             st.session_state.current_tab = "profile"
             st.rerun()
     
+    with col2:
+        st.markdown("**🔐 Voice Authentication**")
+        st.markdown("Test your voice authentication with a new sample.")
+        if st.button("Test Authentication", key="quick_auth"):
+            st.info("Use the main authentication page to test your voice.")
+    
+    # Account management
+    st.subheader("Account Management")
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.markdown("**👤 Profile Settings**")
+        st.markdown("View and manage your voice profile.")
+        if st.button("Manage Profile", key="dashboard_profile"):
+            st.session_state.current_tab = "profile"
+            st.rerun()
+    
+    with col2:
+        st.markdown("**🗑️ Delete Account**")
+        st.markdown("⚠️ Permanently delete your voice profile and account.")
+        if st.button("Delete Account", key="dashboard_delete", type="secondary"):
+            st.session_state.show_delete_confirmation = True
+            st.rerun()
+    
     # Recent activity (placeholder)
     st.subheader("Recent Activity")
     st.info("No recent activity to display.")
-
-def show_voice_analysis():
-    """Display the voice analysis page."""
-    st.subheader("🔍 Voice Analysis")
-    st.markdown("Analyze voice characteristics and detect potential security threats.")
     
-    with st.form("analysis_form"):
-        analysis_type = st.selectbox(
-            "Analysis Type", 
-            ["basic", "full", "security"], 
-            index=1,
-            help="Choose the level of analysis to perform"
-        )
-        include_attack_detection = st.checkbox(
-            "Include Attack Detection", 
-            value=True,
-            help="Include security analysis and attack detection"
-        )
+    # Delete confirmation dialog
+    if st.session_state.get('show_delete_confirmation', False):
+        st.warning("⚠️ **Are you sure you want to delete your account?**")
+        st.markdown("This action will:")
+        st.markdown("- Permanently delete your voice profile")
+        st.markdown("- Remove all authentication data")
+        st.markdown("- Log you out of the system")
         
-        # Recording option (primary)
-        st.markdown("**🎤 Record Your Voice (Recommended)**")
-        st.markdown("*Click the microphone to start recording. Speak clearly for 3-10 seconds.*")
-        
-        audio_bytes = st_audiorec()
-        
-        # Show audio playback if recording exists
-        if audio_bytes is not None:
-            st.audio(audio_bytes, format='audio/wav')
-        
-        # File upload option (secondary)
-        st.markdown("**📁 Or Upload a File**")
-        audio_file = st.file_uploader(
-            "Upload Voice Sample for Analysis", 
-            type=['wav', 'mp3', 'm4a'],
-            help="Upload a voice recording to analyze",
-            label_visibility="collapsed"
-        )
-        
-        submitted = st.form_submit_button("Analyze Voice", type="primary")
-        
-        if submitted:
-            if not audio_bytes and not audio_file:
-                st.error("Please record your voice or upload a voice sample")
-            else:
-                with st.spinner("Processing analysis..."):
-                    # Prepare analysis data as form data
-                    analysis_data = {
-                        "analysis_type": analysis_type,
-                        "include_attack_detection": include_attack_detection
-                    }
-                    
-                    # Prepare files for API - prioritize recording over file upload
-                    if audio_bytes:
-                        # Use recorded audio
-                        files = {"audio_file": create_audio_file_from_bytes(audio_bytes)}
-                        st.info("🎤 Using recorded voice sample")
-                    else:
-                        # Use uploaded file
-                        files = {"audio_file": (audio_file.name, audio_file.getvalue(), audio_file.type)}
-                        st.info("📁 Using uploaded voice sample")
-                    
-                    # Make API request with form data
-                    response = make_api_request("POST", "/analyze", 
-                                              data=analysis_data, files=files)
+        col_confirm1, col_confirm2 = st.columns(2)
+        with col_confirm1:
+            if st.button("✅ Yes, Delete Account", type="primary", key="dashboard_confirm_delete"):
+                with st.spinner("Deleting account..."):
+                    response = make_api_request("DELETE", f"/profiles/{st.session_state.current_user_id}")
                     
                     if response["success"]:
-                        result = response["data"]
+                        st.success("✅ Account deleted successfully!")
+                        st.balloons()
                         
-                        st.success("✅ Voice analysis completed!")
-                        
-                        # Display basic analysis
-                        if "basic_analysis" in result:
-                            st.subheader("📊 Basic Analysis")
-                            basic = result["basic_analysis"]
-                            col1, col2 = st.columns(2)
-                            with col1:
-                                st.metric("Duration (seconds)", f"{basic['duration']:.2f}")
-                            with col2:
-                                st.metric("Sample Rate", f"{basic['sample_rate']} Hz")
-                        
-                        # Display voice characteristics
-                        if "voice_characteristics" in result:
-                            st.subheader("🎵 Voice Characteristics")
-                            characteristics = result["voice_characteristics"]
-                            
-                            # Create tabs for different characteristics
-                            tab1, tab2, tab3, tab4 = st.tabs(["Pitch", "Spectral", "Energy", "Formants"])
-                            
-                            with tab1:
-                                if "pitch" in characteristics:
-                                    pitch = characteristics["pitch"]
-                                    st.write(f"**Mean F0:** {pitch.get('mean_f0', 'N/A')}")
-                                    st.write(f"**F0 Range:** {pitch.get('f0_range', 'N/A')}")
-                                    st.write(f"**F0 Std:** {pitch.get('std_f0', 'N/A')}")
-                            
-                            with tab2:
-                                if "spectral_centroid" in characteristics:
-                                    spectral = characteristics["spectral_centroid"]
-                                    st.write(f"**Mean:** {spectral.get('mean', 'N/A')}")
-                                    st.write(f"**Std:** {spectral.get('std', 'N/A')}")
-                            
-                            with tab3:
-                                if "energy" in characteristics:
-                                    energy = characteristics["energy"]
-                                    st.write(f"**Mean:** {energy.get('mean', 'N/A')}")
-                                    st.write(f"**Std:** {energy.get('std', 'N/A')}")
-                            
-                            with tab4:
-                                if "formants" in characteristics:
-                                    formants = characteristics["formants"]
-                                    st.write("**Formant Analysis:**")
-                                    for key, value in formants.items():
-                                        st.write(f"- {key}: {value}")
-                        
-                        # Display embedding analysis
-                        if "embedding_analysis" in result:
-                            st.subheader("🧠 Embedding Analysis")
-                            embedding = result["embedding_analysis"]
-                            col1, col2 = st.columns(2)
-                            with col1:
-                                st.metric("Dimension", embedding["embedding_dimension"])
-                                st.metric("Norm", f"{embedding['embedding_norm']:.3f}")
-                            with col2:
-                                summary = embedding["embedding_summary"]
-                                st.write("**Statistics:**")
-                                st.write(f"- Mean: {summary['mean']:.3f}")
-                                st.write(f"- Std: {summary['std']:.3f}")
-                                st.write(f"- Min: {summary['min']:.3f}")
-                                st.write(f"- Max: {summary['max']:.3f}")
-                        
-                        # Display security analysis
-                        if "security_analysis" in result:
-                            st.subheader("🛡️ Security Analysis")
-                            security = result["security_analysis"]
-                            
-                            col1, col2 = st.columns(2)
-                            with col1:
-                                if security["is_attack"]:
-                                    st.error("⚠️ Potential attack detected!")
-                                else:
-                                    st.success("✅ No attack detected")
-                                st.write(f"**Attack Probability:** {security['attack_probability']:.3f}")
-                            
-                            with col2:
-                                if security["attack_type"]:
-                                    st.write(f"**Attack Type:** {security['attack_type']}")
-                                else:
-                                    st.write("**Attack Type:** None")
-                            
-                            if security["security_recommendations"]:
-                                st.write("**Recommendations:**")
-                                for rec in security["security_recommendations"]:
-                                    st.write(f"- {rec}")
-                        
-                        # Show full result
-                        with st.expander("View Full Analysis Result"):
-                            st.json(result)
+                        # Logout user and redirect to landing page
+                        st.session_state.user_authenticated = False
+                        st.session_state.current_user_id = None
+                        st.session_state.current_page = "home"
+                        st.session_state.show_delete_confirmation = False
+                        st.rerun()
                     else:
-                        st.error(f"❌ Analysis failed: {response['error']}")
+                        st.error(f"❌ Failed to delete account: {response['error']}")
+                        st.session_state.show_delete_confirmation = False
+        
+        with col_confirm2:
+            if st.button("❌ Cancel", type="secondary", key="dashboard_cancel_delete"):
+                st.session_state.show_delete_confirmation = False
+                st.rerun()
 
 def show_profile_management():
     """Display the profile management page."""
@@ -617,8 +532,42 @@ def show_profile_management():
     with col2:
         st.markdown("**🗑️ Delete Profile**")
         st.markdown("⚠️ This will permanently delete your voice profile.")
+        
+        # Confirmation dialog for profile deletion
         if st.button("Delete Profile", type="secondary"):
-            st.warning("Profile deletion feature coming soon!")
+            st.session_state.show_delete_confirmation = True
+        
+        if st.session_state.get('show_delete_confirmation', False):
+            st.warning("⚠️ **Are you sure you want to delete your profile?**")
+            st.markdown("This action will:")
+            st.markdown("- Permanently delete your voice profile")
+            st.markdown("- Remove all authentication data")
+            st.markdown("- Log you out of the system")
+            
+            col_confirm1, col_confirm2 = st.columns(2)
+            with col_confirm1:
+                if st.button("✅ Yes, Delete Profile", type="primary"):
+                    with st.spinner("Deleting profile..."):
+                        response = make_api_request("DELETE", f"/profiles/{st.session_state.current_user_id}")
+                        
+                        if response["success"]:
+                            st.success("✅ Profile deleted successfully!")
+                            st.balloons()
+                            
+                            # Logout user and redirect to landing page
+                            st.session_state.user_authenticated = False
+                            st.session_state.current_user_id = None
+                            st.session_state.current_page = "home"
+                            st.session_state.show_delete_confirmation = False
+                            st.rerun()
+                        else:
+                            st.error(f"❌ Failed to delete profile: {response['error']}")
+                            st.session_state.show_delete_confirmation = False
+            
+            with col_confirm2:
+                if st.button("❌ Cancel", type="secondary"):
+                    st.session_state.show_delete_confirmation = False
+                    st.rerun()
 
 if __name__ == "__main__":
     main()

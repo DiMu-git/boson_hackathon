@@ -29,6 +29,7 @@ class VoiceLockDatabase:
                     is_active BOOLEAN,
                     voice_characteristics TEXT,
                     embedding_data TEXT,
+                    audio_file_path TEXT,
                     last_verification TIMESTAMP,
                     verification_count INTEGER,
                     failed_attempts INTEGER
@@ -68,9 +69,9 @@ class VoiceLockDatabase:
                 conn.execute("""
                     INSERT INTO voice_profiles 
                     (user_id, voice_name, enrollment_date, security_level, max_attempts,
-                     is_active, voice_characteristics, embedding_data, last_verification,
-                     verification_count, failed_attempts)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                     is_active, voice_characteristics, embedding_data, audio_file_path, 
+                     last_verification, verification_count, failed_attempts)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """, (
                     profile.user_id,
                     profile.voice_name,
@@ -80,6 +81,7 @@ class VoiceLockDatabase:
                     profile.is_active,
                     json.dumps(profile.voice_characteristics),
                     json.dumps(profile.embedding_data),
+                    profile.audio_file_path,
                     profile.last_verification,
                     profile.verification_count,
                     profile.failed_attempts
@@ -108,9 +110,10 @@ class VoiceLockDatabase:
                 is_active=bool(row[5]),
                 voice_characteristics=json.loads(row[6]),
                 embedding_data=json.loads(row[7]),
-                last_verification=datetime.fromisoformat(row[8]) if row[8] else None,
-                verification_count=row[9],
-                failed_attempts=row[10]
+                audio_file_path=row[8],
+                last_verification=datetime.fromisoformat(row[9]) if row[9] else None,
+                verification_count=row[10],
+                failed_attempts=row[11]
             )
     
     def update_verification_log(self, user_id: str, verified: bool, confidence: float, 

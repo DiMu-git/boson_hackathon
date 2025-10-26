@@ -49,7 +49,6 @@ backend/
 ### Voice Processing
 - `POST /enroll` - Enroll new voice profile
 - `POST /verify` - Verify voice against profile
-- `POST /analyze` - Analyze voice characteristics
 
 ### Profile Management
 - `GET /profiles/{user_id}` - Get voice profile

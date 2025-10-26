@@ -257,3 +257,56 @@ class VoiceAnalyzer:
         )
         
         return similarities
+    
+    def compare_voice_with_profile(
+        self,
+        voice_path: str,
+        profile_characteristics: Dict[str, Any]
+    ) -> Dict[str, float]:
+        """
+        Compare a voice with stored profile characteristics.
+        
+        Args:
+            voice_path: Path to voice file to compare
+            profile_characteristics: Stored voice characteristics from profile
+            
+        Returns:
+            Dictionary of similarity scores
+        """
+        # Analyze the verification voice
+        verification_char = self.analyze_voice(voice_path)
+        
+        # Calculate similarity scores
+        similarities = {}
+        
+        # Pitch similarity
+        if verification_char["pitch"]["mean_f0"] > 0 and profile_characteristics["pitch"]["mean_f0"] > 0:
+            pitch_sim = 1.0 - abs(verification_char["pitch"]["mean_f0"] - profile_characteristics["pitch"]["mean_f0"]) / max(
+                verification_char["pitch"]["mean_f0"], profile_characteristics["pitch"]["mean_f0"]
+            )
+            similarities["pitch_similarity"] = max(0.0, pitch_sim)
+        else:
+            similarities["pitch_similarity"] = 0.0
+        
+        # Spectral centroid similarity
+        sc_sim = 1.0 - abs(
+            verification_char["spectral_centroid"]["mean"] - profile_characteristics["spectral_centroid"]["mean"]
+        ) / max(
+            verification_char["spectral_centroid"]["mean"], profile_characteristics["spectral_centroid"]["mean"]
+        )
+        similarities["spectral_similarity"] = max(0.0, sc_sim)
+        
+        # MFCC cosine similarity
+        mfcc_verification = np.array(verification_char["mfcc"])
+        mfcc_profile = np.array(profile_characteristics["mfcc"])
+        mfcc_sim = np.dot(mfcc_verification, mfcc_profile) / (np.linalg.norm(mfcc_verification) * np.linalg.norm(mfcc_profile))
+        similarities["mfcc_similarity"] = float(mfcc_sim)
+        
+        # Overall similarity (weighted average)
+        similarities["overall_similarity"] = (
+            similarities["pitch_similarity"] * 0.4 +
+            similarities["spectral_similarity"] * 0.3 +
+            similarities["mfcc_similarity"] * 0.3
+        )
+        
+        return similarities

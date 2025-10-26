@@ -19,11 +19,6 @@ class VoiceVerificationRequest(BaseModel):
     confidence_threshold: Optional[float] = Field(None, description="Custom confidence threshold")
 
 
-class VoiceAnalysisRequest(BaseModel):
-    analysis_type: str = Field("full", description="Type of analysis: basic, full, security")
-    include_attack_detection: bool = Field(True, description="Include attack detection analysis")
-
-
 class VoiceProfile(BaseModel):
     user_id: str
     voice_name: Optional[str]
@@ -33,6 +28,7 @@ class VoiceProfile(BaseModel):
     is_active: bool
     voice_characteristics: Dict[str, Any]
     embedding_data: List[float]
+    audio_file_path: Optional[str]  # Path to stored audio file
     last_verification: Optional[datetime]
     verification_count: int
     failed_attempts: int

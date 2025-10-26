@@ -17,7 +17,6 @@ async def root():
         "endpoints": {
             "enrollment": "/enroll",
             "verification": "/verify",
-            "analysis": "/analyze",
             "profiles": "/profiles",
             "security": "/security"
         }

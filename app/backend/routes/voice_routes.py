@@ -14,7 +14,6 @@ from pydantic import BaseModel
 from ..models.schemas import (
     VoiceEnrollmentRequest,
     VoiceVerificationRequest,
-    VoiceAnalysisRequest,
     VerificationResult
 )
 from ..security.auth import get_current_user
@@ -58,6 +57,19 @@ async def enroll_voice(
             temp_file.write(content)
             temp_file_path = temp_file.name
         
+        # Create voice_embeddings directory if it doesn't exist
+        voice_embeddings_dir = Path("voice_embeddings")
+        voice_embeddings_dir.mkdir(exist_ok=True)
+        
+        # Save the original audio file for future reference
+        import hashlib
+        audio_hash = hashlib.md5(content).hexdigest()
+        enrolled_audio_path = voice_embeddings_dir / f"{audio_hash}.wav"
+        
+        # Copy the temporary file to the permanent location
+        import shutil
+        shutil.copy2(temp_file_path, enrolled_audio_path)
+        
         try:
             # Analyze voice characteristics
             voice_characteristics = voice_analyzer.analyze_voice(temp_file_path)
@@ -76,6 +88,7 @@ async def enroll_voice(
                 is_active=True,
                 voice_characteristics=voice_characteristics,
                 embedding_data=embedding.tolist(),
+                audio_file_path=str(enrolled_audio_path),
                 last_verification=None,
                 verification_count=0,
                 failed_attempts=0
@@ -185,10 +198,18 @@ async def verify_voice(
             )
             
             # Calculate voice characteristic similarities
-            voice_similarity = voice_analyzer.compare_voices(
-                temp_file_path, 
-                temp_file_path  # This would be the enrolled voice file in practice
-            )
+            if profile.audio_file_path and os.path.exists(profile.audio_file_path):
+                # Use the stored enrolled audio file for comparison
+                voice_similarity = voice_analyzer.compare_voices(
+                    temp_file_path, 
+                    profile.audio_file_path
+                )
+            else:
+                # Fallback to using stored characteristics if audio file not available
+                voice_similarity = voice_analyzer.compare_voice_with_profile(
+                    temp_file_path, 
+                    profile.voice_characteristics
+                )
             
             # Determine confidence threshold based on security level
             thresholds = {
@@ -200,7 +221,7 @@ async def verify_voice(
             
             # Calculate overall confidence
             overall_confidence = (embedding_similarity * 0.7 + 
-                                voice_similarity.get("overall_similarity", 0) * 0.3)
+                                voice_similarity.get("overall_similarity", 0) * 0.3)       
             
             verified = overall_confidence >= threshold
             
@@ -255,92 +276,3 @@ async def verify_voice(
         )
 
 
-@router.post("/analyze", response_model=Dict[str, Any])
-async def analyze_voice(
-    analysis_type: str = "full",
-    include_attack_detection: bool = True,
-    audio_file: UploadFile = File(...),
-    current_user: Optional[str] = Depends(get_current_user)
-):
-    """
-    Analyze voice characteristics and detect potential attacks.
-    
-    This endpoint provides detailed voice analysis including security assessment
-    and attack detection capabilities.
-    """
-    try:
-        services = get_services()
-        voice_analyzer = services["voice_analyzer"]
-        embedder = services["embedder"]
-        security_manager = services["security_manager"]
-        
-        # Save uploaded audio temporarily
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_file:
-            content = await audio_file.read()
-            temp_file.write(content)
-            temp_file_path = temp_file.name
-        
-        try:
-            # Perform voice analysis
-            analysis = voice_analyzer.analyze_voice(temp_file_path)
-            
-            result = {
-                "basic_analysis": {
-                    "duration": analysis.get("duration", 0),
-                    "sample_rate": voice_analyzer.sample_rate
-                },
-                "voice_characteristics": {
-                    "pitch": analysis.get("pitch", {}),
-                    "spectral_centroid": analysis.get("spectral_centroid", {}),
-                    "spectral_rolloff": analysis.get("spectral_rolloff", {}),
-                    "zero_crossing_rate": analysis.get("zero_crossing_rate", {}),
-                    "energy": analysis.get("energy", {}),
-                    "formants": analysis.get("formants", {})
-                }
-            }
-            
-            if analysis_type in ["full", "security"]:
-                # Generate embedding
-                embedding = embedder.embed_file(temp_file_path)
-                result["embedding_analysis"] = {
-                    "embedding_dimension": len(embedding),
-                    "embedding_norm": float(embedding.norm()),
-                    "embedding_summary": {
-                        "mean": float(embedding.mean()),
-                        "std": float(embedding.std()),
-                        "min": float(embedding.min()),
-                        "max": float(embedding.max())
-                    }
-                }
-            
-            if include_attack_detection:
-                # Create a dummy profile for attack detection
-                from ..models.schemas import VoiceProfile
-                dummy_profile = VoiceProfile(
-                    user_id="dummy",
-                    voice_name="dummy",
-                    enrollment_date=datetime.now(),
-                    security_level="medium",
-                    max_attempts=3,
-                    is_active=True,
-                    voice_characteristics={},
-                    embedding_data=[],
-                    last_verification=None,
-                    verification_count=0,
-                    failed_attempts=0
-                )
-                
-                attack_detection = security_manager.detect_attack(analysis, dummy_profile)
-                result["security_analysis"] = attack_detection.dict()
-            
-            return result
-            
-        finally:
-            # Clean up temporary file
-            os.unlink(temp_file_path)
-            
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Analysis failed: {str(e)}"
-        )
